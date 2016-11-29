@@ -20,12 +20,12 @@ object NominalGroupConverter {
   val FirstName = list(word(FIRSTNAME))
   val LastName = list(word(PROPER_NAME))
 
-  val Color = word(DEFINITE_ARTICLE) ~ word(COLOR) {
+  val Color = (word(DEFINITE_ARTICLE) ~ word(COLOR)) {
     case List(_, c: Word) =>
       new ColorObject { color = c.getColorInfo }
   }
 
-  val CommonName = CountConverter.CountRule ~ word(COMMON_NAME) {
+  val CommonName = (CountConverter.CountRule ~ word(COMMON_NAME)) {
     case List(count: CountObject, n: Word) =>
       new NameObject {
         count = count
@@ -35,7 +35,7 @@ object NominalGroupConverter {
 
   val AdditionalPerson = word(PERSON) { w => new AdditionalPerson { person = w.getCustomPerson } }
 
-  val Language = word(DEFINITE_ARTICLE) ~ word(LANGUAGE) {
+  val Language = (word(DEFINITE_ARTICLE) ~ word(LANGUAGE)) {
     case List(_, l: Word) =>
       new LanguageObject { language = l.getLanguageInfo }
   }

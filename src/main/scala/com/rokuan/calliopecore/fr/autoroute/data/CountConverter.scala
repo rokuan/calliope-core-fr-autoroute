@@ -52,11 +52,11 @@ object CountConverter {
     "milliard"
   )
 
-  val FixedItem: BasicTransformer[List[_], Word, CountObject] = (word(DEFINITE_ARTICLE) ~ word(NUMERICAL_POSITION)) {
+  val FixedItem = (word(DEFINITE_ARTICLE) ~ word(NUMERICAL_POSITION)) {
     case List(_, position: Word) =>
       new FixedItemObject(parsePosition(position.getValue))
   }
-  val FixedRange: BasicTransformer[List[_], Word, CountObject] = (word(DEFINITE_ARTICLE) ~ word(NUMBER) ~ word(NUMERICAL_POSITION)) {
+  val FixedRange = (word(DEFINITE_ARTICLE) ~ word(NUMBER) ~ word(NUMERICAL_POSITION)) {
     case List(_, n: Word, position: Word) =>
       val count = n.getValue.toLong
       val range = position.getValue match {
@@ -66,7 +66,7 @@ object CountConverter {
       }
       new LimitedItemsObject(range, count)
   }
-  val All = word("tout|toute|tous|toutes") ~ word(DEFINITE_ARTICLE) {
+  val All = (word("tout|toute|tous|toutes") ~ word(DEFINITE_ARTICLE)) {
     case List(_, article: Word) =>
       val result = new AllItemsObject
       result.definition =
