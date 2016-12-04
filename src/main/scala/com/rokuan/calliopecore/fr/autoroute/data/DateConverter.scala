@@ -15,7 +15,7 @@ object DateConverter {
   import com.rokuan.calliopecore.fr.autoroute.pattern.WordRules._
   import com.rokuan.calliopecore.fr.sentence.Word.WordType._
   import com.rokuan.autoroute.rules.Rule._
-  
+
   private val NullDateValue = -1
 
   def parseRelativeSingleDate(dayStr: String) = {
@@ -180,6 +180,6 @@ object DateConverter {
       }
   }
 
-  val TimeAdverbial = FromToDate | BetweenDate |
+  val TimeAdverbialRule = FromToDate | BetweenDate |
     FixedDate | TimeDeclaration | RelativeDate
 }

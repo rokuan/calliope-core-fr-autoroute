@@ -1,15 +1,24 @@
 package com.rokuan.calliopecore.fr.autoroute.data
 
+import com.rokuan.autoroute.matchers.Transformer
 import com.rokuan.calliopecore.fr.data.nominal.PronounObject
 import com.rokuan.calliopecore.fr.sentence._
 import com.rokuan.calliopecore.sentence.ActionObject
-import com.rokuan.calliopecore.sentence.IAction.{ActionType, Tense}
+import com.rokuan.calliopecore.sentence.IAction.{ActionType, Form, Tense}
 import com.rokuan.calliopecore.sentence.IPronoun.PronounSource
-import com.rokuan.calliopecore.sentence.structure.data.nominal.PronounSubject
+import com.rokuan.calliopecore.sentence.structure.content.INominalObject
+import com.rokuan.calliopecore.sentence.structure.data.nominal.{AbstractTarget, PronounSubject}
 
 /**
   * Created by Christophe on 01/12/2016.
   */
+case class ActionInfo(subject: Option[INominalObject], target: Option[INominalObject], action: ActionObject)
+
+object ActionInfo {
+  implicit def tupleToActionInfo(values: (Option[INominalObject], Option[INominalObject], ActionObject)) =
+    ActionInfo(values._1, values._2, values._3)
+}
+
 object VerbConverter {
   import com.rokuan.calliopecore.fr.sentence.Word.WordType._
   import com.rokuan.calliopecore.fr.autoroute.pattern.WordRules._
@@ -43,17 +52,44 @@ object VerbConverter {
   val AffirmativeConjugatedVerb = (opt(PronounTransformer) ~ AffirmativeVerbTransformer) {
     case List(pronoun: Option[PronounObject], action: ActionObject) =>
       // TODO:
+      val mainVerb = action.getMainAction.asInstanceOf[VerbConjugation]
+        .getVerb
+      val target = pronoun.collect {
+        case _ if mainVerb.existsInReflexiveForm() =>
+          // TODO: check that the subject is the same source as the pronoun
+          mainVerb.valorizeReflexiveMode()
+          None
+        case p if p.isTarget && !p.isSource =>
+          Some(new AbstractTarget(p.getTargetForm))
+      }.getOrElse {
+        None
+      }
+    ActionInfo(None, target, action)
   }
 
   val PastQuestionVerb = (opt(TargetPronounTransformer) ~ word(AUXILIARY) ~
     opt(word(CONJUGATION_LINK)) ~ PersonalPronounTransformer ~ VerbTransformer) {
     case List(target: Option[PronounSubject], _, _, subject: PronounSubject, verb: ActionObject) =>
-      (subject, target, verb)
+      ActionInfo(Some(subject), target, verb)
   }
   val IndicativeQuestionVerb = (opt(TargetPronounTransformer) ~ VerbTransformer ~
     opt(word(CONJUGATION_LINK)) ~ PersonalPronounTransformer){
     case List(target: Option[PronounSubject], verb: ActionObject, _, subject: PronounSubject) =>
-      (subject, target, verb)
+      ActionInfo(Some(subject), target, verb)
+  }
+  val ImperativeVerbTransformer = /*verb(Form.IMPERATIVE)*/ word(VERB) { v =>
+    new ActionObject(Tense.PRESENT, v.getVerbInfo)
+  }
+  val InfinitiveVerbTransformer = (word("avoir") ~ VerbTransformer) {
+    case List(aux: Word, verb: ActionObject) => verb // TODO:
+      new ActionObject(Tense.PAST, verb.getMainAction, verb.getPrefixActions)
+  } | verb(Form.INFINITIVE) { v =>
+    new ActionObject(Tense.PRESENT, v.getVerbInfo)
+  }
+  val InfinitiveVerbRule = (opt(TargetPronounTransformer) ~ InfinitiveVerbTransformer) {
+    case List(target: Option[PronounSubject], verb: ActionObject) =>
+      val subject = new PronounSubject(new Pronoun("", PronounSource.UNDEFINED))
+      ActionInfo(Some(subject), target, verb)
   }
   val IsThereQuestionVerb = (word("y") ~ verb("avoir") ~ opt(word(CONJUGATION_LINK)) ~
     word("il")) {
@@ -63,8 +99,8 @@ object VerbConverter {
         new Verb("y avoir", false, new Action(ActionType.THERE_IS)))
       val action = new ActionObject(conjugation.getTense, conjugation)
       val subject = new PronounSubject(new Pronoun("", PronounSource.UNDEFINED))
-      (subject, Option.empty[PronounSubject], action)
+      ActionInfo(Some(subject), Option.empty[PronounSubject], action)
   }
   val QuestionVerb = PastQuestionVerb | IndicativeQuestionVerb | IsThereQuestionVerb
-
+  val HowQuestionVerb = PastQuestionVerb | InfinitiveVerbRule
 }

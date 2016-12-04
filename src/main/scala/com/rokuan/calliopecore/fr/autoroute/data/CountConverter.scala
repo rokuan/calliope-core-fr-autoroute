@@ -1,6 +1,5 @@
 package com.rokuan.calliopecore.fr.autoroute.data
 
-import com.rokuan.autoroute.matchers.BasicTransformer
 import com.rokuan.calliopecore.fr.sentence.Word
 import com.rokuan.calliopecore.sentence.structure.data.count.CountObject.ArticleType
 import com.rokuan.calliopecore.sentence.structure.data.count._
@@ -12,45 +11,47 @@ object CountConverter {
   import com.rokuan.calliopecore.fr.autoroute.pattern.WordRules._
   import com.rokuan.calliopecore.fr.sentence.Word.WordType._
 
-  private val NumberMap = Array(
-    "un",
-    "deux",
-    "trois",
-    "quatre",
-    "cinq",
-    "six",
-    "sept",
-    "huit",
-    "neuf",
-    "dix",
-    "onze",
-    "douze",
-    "treize",
-    "quatorze",
-    "quinze",
-    "seize"
-  )
+  private val NumberMap = Array("un", "deux", "trois", "quatre", "cinq", "six",
+    "sept", "huit", "neuf", "dix", "onze", "douze", "treize", "quatorze", "quinze",
+    "seize")
 
-  private val TenStepMap = Array(
-    "dix",
-    "vingt",
-    "trente",
-    "quarante",
-    "cinquante",
-    "soixante"
-  )
+  private val TenStepMap = Array("dix", "vingt", "trente", "quarante",
+    "cinquante", "soixante")
 
-  private val TenPowerMap = Array(
-    "dix",
-    "cent",
-    "mille",
-    "_",
-    "_",
-    "million",
-    "_",
-    "_",
-    "milliard"
-  )
+  private val TenPowerMap = Array("dix", "cent", "mille", "_", "_", "million", "_",
+    "_", "milliard")
+
+  def isSingular(article: String) = article.split("-").exists(w => w.last == 's' || w.last == 'x')
+
+  def parsePosition(position: String) = position match {
+    case "premier" | "première" | "1er" | "1ère" | "1ere" => 1
+    case s if s.endsWith("ième") =>
+      val count = s.substring(0, s.length - 4)
+      val trimmedCount =
+        if(count.last == 'u'){
+          count.substring(0, count.length - 1)
+        } else {
+          count
+        }
+      parseCount(count)
+    case _ => 0 // TODO
+  }
+
+  def parseCount(count: String) =
+    TenPowerMap.zipWithIndex.collectFirst {
+      case (s, index) if Math.abs(s.length - count.length) <= 1
+        && s.startsWith(count) => math.pow(10, (index + 1)).toInt
+    }.orElse {
+      TenStepMap.zipWithIndex.collectFirst {
+        case (s, index) if Math.abs(s.length - count.length) <= 1
+          && s.startsWith(count) => (index + 1) * 10
+      }
+    }.orElse {
+      NumberMap.zipWithIndex.collectFirst {
+        case (s, index) if math.abs(s.length - count.length) <= 1
+          && s.startsWith(count) => (index + 1)
+      }
+    }.getOrElse(0)
 
   val FixedItem = (word(DEFINITE_ARTICLE) ~ word(NUMERICAL_POSITION)) {
     case List(_, position: Word) =>
@@ -106,35 +107,4 @@ object CountConverter {
   val Possessive = word(POSSESSIVE_ADJECTIVE)
 
   val CountRule = FixedItem | FixedRange
-
-  def isSingular(article: String) = article.split("-").exists(w => w.last == 's' || w.last == 'x')
-  def parsePosition(position: String) = position match {
-    case "premier" | "première" | "1er" | "1ère" | "1ere" => 1
-    case s if s.endsWith("ième") =>
-      val count = s.substring(0, s.length - 4)
-      val trimmedCount =
-        if(count.last == 'u'){
-          count.substring(0, count.length - 1)
-        } else {
-          count
-        }
-      parseCount(count)
-    case _ => 0 // TODO
-  }
-
-  def parseCount(count: String) =
-    TenPowerMap.zipWithIndex.collectFirst {
-      case (s, index) if Math.abs(s.length - count.length) <= 1
-        && s.startsWith(count) => math.pow(10, (index + 1)).toInt
-    }.orElse {
-      TenStepMap.zipWithIndex.collectFirst {
-        case (s, index) if Math.abs(s.length - count.length) <= 1
-          && s.startsWith(count) => (index + 1) * 10
-      }
-    }.orElse {
-      NumberMap.zipWithIndex.collectFirst {
-        case (s, index) if math.abs(s.length - count.length) <= 1
-          && s.startsWith(count) => (index + 1)
-      }
-    }.getOrElse(0)
 }
