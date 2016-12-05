@@ -23,7 +23,7 @@ object WayConverter {
   val ColorTransformer = word(COLOR) { c =>
     new ColorObject { color = c.getColorInfo }
   }
-  val AdditionalModeTransformer = word(MODE) { m =>
+  val AdditionalModeTransformer = word(CUSTOM_MODE) { m =>
     new AdditionalMode { mode = m.getCustomMode }
   }
 

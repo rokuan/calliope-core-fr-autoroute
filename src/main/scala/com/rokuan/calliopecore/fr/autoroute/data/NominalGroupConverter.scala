@@ -21,7 +21,7 @@ object NominalGroupConverter {
   val NumberTransformer = word(NUMBER) { _.getValue.toInt }
   val DoubleTransformer = word(NUMBER) { _.getValue.toDouble }
   val UnitTransformer = word(UNIT) { _.getUnitInfo.getUnitType }
-  val CustomObjectTransformer = word(OBJECT) { _.getCustomObject }
+  val CustomObjectTransformer = word(CUSTOM_OBJECT) { _.getCustomObject }
 
   val FirstName = list(word(FIRSTNAME))
   val LastName = list(word(PROPER_NAME))
@@ -48,7 +48,7 @@ object NominalGroupConverter {
     case List(_, numbers: List[Int]) =>
       // TODO: How to handle numbers such as "099" ?
       val phoneNumber = numbers.map {
-        case n if n < 100 => String.format("%2d", n)
+        case n if n < 100 => "%2d".format(n)
         case n => n.toString
       }.mkString
       new PhoneNumberObject {
@@ -71,7 +71,7 @@ object NominalGroupConverter {
       val names = firstNames.map(_.getValue) ++ lastNames.getOrElse(List()).map(_.getValue)
       new PersonObject(names.mkString(" "))
   }
-  val AdditionalPersonTransformer = word(PERSON) { w => new AdditionalPerson { person = w.getCustomPerson } }
+  val AdditionalPersonTransformer = word(CUSTOM_PERSON) { w => new AdditionalPerson { person = w.getCustomPerson } }
   val PersonObjectRule = AdditionalPersonTransformer | PersonTransformer
   val Language = (word(DEFINITE_ARTICLE) ~ word(LANGUAGE)) {
     case List(_, l: Word) =>
@@ -89,7 +89,7 @@ object NominalGroupConverter {
 
   val SimpleObjectOnlyRule = word(COMMON_NAME) { w =>
     new NameObject { `object` = w.getNameInfo }
-  } | word(OBJECT) { w =>
+  } | word(CUSTOM_OBJECT) { w =>
     new AdditionalObject { `object` = w.getCustomObject }
   }
 

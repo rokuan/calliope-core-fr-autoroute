@@ -9,11 +9,11 @@ import com.rokuan.calliopecore.fr.sentence.Word.WordType
   * Created by Christophe on 27/11/2016.
   */
 object WordRules {
-  def word(w: WordType*): TerminalState[Word] = new TerminalMatcher(SimpleWordMatcher.builder().setTypes(w: _*).build())
+  def word(w: WordType*): TerminalState[Word] = new TerminalMatcher(new SimpleWordMatcher().getBuilder().setTypes(w: _*).build())
 
-  def word(v: String): TerminalState[Word] = new TerminalMatcher(SimpleWordMatcher.builder().setWordRegex(v).build())
+  def word(v: String): TerminalState[Word] = new TerminalMatcher(new SimpleWordMatcher().getBuilder().setWordRegex(v).build())
 
-  def word(v: String, w: WordType*): TerminalState[Word] = new TerminalMatcher(SimpleWordMatcher.builder()
+  def word(v: String, w: WordType*): TerminalState[Word] = new TerminalMatcher(new SimpleWordMatcher().getBuilder()
     .setTypes(w: _*)
     .setWordRegex(v)
     .build())

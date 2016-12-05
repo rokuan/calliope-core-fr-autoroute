@@ -93,7 +93,7 @@ object VerbConverter {
   }
   val IsThereQuestionVerb = (word("y") ~ verb("avoir") ~ opt(word(CONJUGATION_LINK)) ~
     word("il")) {
-    case (_, v: Word,_, pronoun: Word) =>
+    case List(_, v: Word,_, pronoun: Word) =>
       // TODO: find the right subject
       val conjugation = new VerbConjugation("y " + v.getValue, v.getVerbInfo.asInstanceOf[VerbConjugation],
         new Verb("y avoir", false, new Action(ActionType.THERE_IS)))

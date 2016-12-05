@@ -27,7 +27,7 @@ object PlaceConverter {
     } | prep(p, true) { _.getPlacePreposition }
   }
 
-  val CustomPlaceTransformer = word(ADDITIONAL_PLACE) { _.getCustomPlace }
+  val CustomPlaceTransformer = word(CUSTOM_PLACE) { _.getCustomPlace }
   val AdditionalPlacePreposition = PlacePrepositionTransformer(PlaceType.CUSTOM)
   val AdditionalPlaceRule = (AdditionalPlacePreposition ~ CustomPlaceTransformer) {
     case List(preposition: IPlacePreposition, place: ICustomPlace) =>
@@ -47,10 +47,10 @@ object PlaceConverter {
     case List(preposition: Word, _) => preposition.getPlacePreposition
   } | prep(PlaceType.COUNTRY, true) { _.getPlacePreposition }
 
-  val CityRule = CityTransformer { c =>
+  val CityRule = CityTransformer { c: ICityInfo =>
     new CityObject { city = c }
   }
-  val CountryRule = CountryTransformer { c =>
+  val CountryRule = CountryTransformer { c: ICountryInfo =>
     new CountryObject { country = c }
   }
 

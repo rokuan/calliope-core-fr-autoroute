@@ -1,6 +1,7 @@
 package com.rokuan.calliopecore.fr.autoroute.data
 
 import com.rokuan.calliopecore.fr.sentence.Word
+import com.rokuan.calliopecore.fr.sentence.Word.WordType
 import com.rokuan.calliopecore.sentence.structure.data.count.CountObject.ArticleType
 import com.rokuan.calliopecore.sentence.structure.data.count._
 
@@ -53,11 +54,25 @@ object CountConverter {
       }
     }.getOrElse(0)
 
-  val FixedItem = (word(DEFINITE_ARTICLE) ~ word(NUMERICAL_POSITION)) {
+  val ArticleTransformer = { (t: WordType, d: ArticleType) =>
+    word(t) { article =>
+      val result =
+        if(isSingular(article.getValue)){
+          new FixedItemObject(1)
+        } else {
+          new AllItemsObject
+        }
+      result.definition = d
+      result
+    }
+  }
+
+  val FixedItemRule = (word(DEFINITE_ARTICLE) ~ word(NUMERICAL_POSITION)) {
     case List(_, position: Word) =>
+      // TODO: how to do for the last element ?
       new FixedItemObject(parsePosition(position.getValue))
   }
-  val FixedRange = (word(DEFINITE_ARTICLE) ~ word(NUMBER) ~ word(NUMERICAL_POSITION)) {
+  val FixedRangeRule = (word(DEFINITE_ARTICLE) ~ word(NUMBER) ~ word(NUMERICAL_POSITION)) {
     case List(_, n: Word, position: Word) =>
       val count = n.getValue.toLong
       val range = position.getValue match {
@@ -67,7 +82,7 @@ object CountConverter {
       }
       new LimitedItemsObject(range, count)
   }
-  val All = (word("tout|toute|tous|toutes") ~ word(DEFINITE_ARTICLE)) {
+  val AllRule = (word("tout|toute|tous|toutes") ~ word(DEFINITE_ARTICLE)) {
     case List(_, article: Word) =>
       val result = new AllItemsObject
       result.definition =
@@ -80,31 +95,14 @@ object CountConverter {
         }
       result
   }
-  val Quantity = (word(DEFINITE_ARTICLE) ~ word(NUMBER)) {
+  val QuantityRule = (word(DEFINITE_ARTICLE) ~ word(NUMBER)) {
     case List(_, n: Word) =>
       new QuantityObject(parseCount(n.getValue))
   }
-  val SimpleArticle = word(DEFINITE_ARTICLE) { article =>
-    val result =
-      if(isSingular(article.getValue)){
-        new FixedItemObject(1)
-      } else {
-        new AllItemsObject
-      }
-    result.definition = ArticleType.DEFINITE
-    result
-  } | word(INDEFINITE_ARTICLE) { article =>
-    val result =
-      if(isSingular(article.getValue)){
-        new FixedItemObject(1)
-      } else {
-        new AllItemsObject
-      }
-    result.definition = ArticleType.INDEFINITE
-    result
-  }
-  //val SingleItem = opt(word()
-  val Possessive = word(POSSESSIVE_ADJECTIVE)
+  val SimpleArticleRule = ArticleTransformer(DEFINITE_ARTICLE, ArticleType.DEFINITE) |
+    ArticleTransformer(INDEFINITE_ARTICLE, ArticleType.INDEFINITE) |
+    ArticleTransformer(POSSESSIVE_ADJECTIVE, ArticleType.POSSESSIVE) |
+    ArticleTransformer(DEMONSTRATIVE_ADJECTIVE, ArticleType.DEMONSTRATIVE)
 
-  val CountRule = FixedItem | FixedRange
+  val CountRule = FixedItemRule | FixedRangeRule | AllRule | QuantityRule | SimpleArticleRule
 }
