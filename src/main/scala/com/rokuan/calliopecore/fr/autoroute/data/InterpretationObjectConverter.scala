@@ -22,6 +22,7 @@ object InterpretationObjectConverter {
   private def applyAdverbials(o: InterpretationObject, adverbials: AdverbialsInfo) = {
     adverbials.where.foreach(o.where = _)
     adverbials.when.foreach(o.when = _)
+    adverbials.how.foreach(o.how = _)
   }
   private def createQuestionObject(t: QuestionType, verb: ActionInfo, directObject: Option[NominalGroup], adverbials: AdverbialsInfo) = {
     val question = new QuestionObject {
@@ -42,6 +43,7 @@ object InterpretationObjectConverter {
     case List(_, _, _, _) => QuestionType.WHEN
   } | word("quand") { _ => QuestionType.WHEN }
   val WhereTransformer = word("où") { _ => QuestionType.WHERE }
+  val WhoTransformer = word("qui") { _ => QuestionType.WHO }
 
   val AdverbialsTransformer = DateConverter.TimeAdverbialRule { timeAdverbial: ITimeObject =>
     AdverbialsInfo(Some(timeAdverbial), None, None)
@@ -89,6 +91,18 @@ object InterpretationObjectConverter {
   val WhereQuestion = (WhereTransformer ~ VerbConverter.IndicativeQuestionVerb ~ NominalGroupConverter.DirectObjectRule ~ AdverbialListTransformer) {
     case List(t: QuestionType, verb: ActionInfo, directObject: NominalGroup, adverbials: AdverbialsInfo) =>
       createQuestionObject(t, verb, Some(directObject), adverbials)
+  }
+  val WhoQuestion = (WhoTransformer ~ VerbConverter.AffirmativeConjugatedVerb ~ opt(NominalGroupConverter.SubjectRule) ~ AdverbialListTransformer) {
+    case List(t: QuestionType, verb: ActionInfo, subject: Option[INominalObject], adverbials: AdverbialsInfo) =>
+      val question = new QuestionObject {
+        questionType = t
+        action = verb.action
+      }
+      verb.target.foreach(question.target = _)
+      verb.subject.foreach(question.subject = _)
+      subject.foreach(question.what = _)
+      applyAdverbials(question, adverbials)
+      question
   }
 
   val AssertionRule = (NominalGroupConverter.SubjectRule ~ VerbConverter.AffirmativeConjugatedVerb ~
@@ -142,7 +156,7 @@ object InterpretationObjectConverter {
   }
 
   val QuestionRule = HowQuestion | HowManyQuestion |
-    WhatQuestion | WhereQuestion | WhenQuestion
+    WhatQuestion | WhereQuestion | WhenQuestion | WhoQuestion
 
   val InterpretationObjectRule = QuestionRule | AssertionRule | OrderRule
 }

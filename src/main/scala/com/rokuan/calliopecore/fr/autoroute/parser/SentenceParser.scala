@@ -17,24 +17,76 @@ import collection.JavaConversions._
 class SentenceParser(val db: WordDatabase) extends AbstractParser {
   val parser = new Route(InterpretationObjectConverter.InterpretationObjectRule)
 
+  val fullTimeRegex = "(\\d+)h(\\d+)".r
+  val hoursOnlyRegex = "(\\d+)h".r
+  val positionRegex = "(\\d+)e".r
+  val realNumberRegex = "(\\d+\\.\\d+)".r
+  val numberRegex = "(\\d+)".r
+
   override def parseText(s: String): InterpretationObject = {
     val words = lexSpeech(s)
     parser(words)
   }
 
   protected def lexSpeech(text: String): Producer[Word] = {
+    val words = text.split(" ").toList
+    def getNextWord(words: List[String]): Producer[Word] = {
+      words match {
+        case head :: tail =>
+          val headWord = getWord(head)
+          (headWord, db.wordStartsWith(head)) match {
+            case (w, false) if w != null => w :: getNextWord(tail)
+            case (null, false) =>
+              head match {
+                case _ if head.indexOf('\'') >= 0 =>
+                  val quoteIndex = head.indexOf('\'')
+                  val leftPart = head.substring(0, quoteIndex)
+                  val rightPart = head.substring(quoteIndex + 1, head.length)
+                  val leftWord = Option(getWord(leftPart))
+                    .getOrElse(new Word(leftPart, OTHER))
+                  leftWord :: getNextWord(rightPart :: tail)
+                case _ if head.indexOf('-') >= 0 =>
+                  val dashIndex = head.indexOf('-')
+                  val leftPart = head.substring(0, dashIndex)
+                  val rightPart = head.substring(dashIndex + 1, head.length)
+                  val leftWord = Option(getWord(leftPart))
+                    .getOrElse(new Word(leftPart, OTHER))
+                  leftWord :: getNextWord(rightPart :: tail)
+                case _ => new Word(head, OTHER) :: getNextWord(tail)
+              }
+            case (null, true) =>
+              tail.headOption.map { s =>
+                getNextWord((head + " " + s) :: tail.tail)
+              }.getOrElse(PNil)
+            case (w, true) =>
+              // TODO:
+              var currentWord = w
+              val buffer = new StringBuilder(currentWord.getValue)
+              var realEnd = tail
+              var toMatch = tail
+              var shouldContinue = true
 
-    PNil
+              while(shouldContinue && !toMatch.isEmpty){
+                buffer.append(toMatch.head)
+                val newQuery = buffer.toString
+                Option(getWord(newQuery)).foreach { result =>
+                  currentWord = result
+                  realEnd = toMatch
+                }
+                shouldContinue = db.wordStartsWith(newQuery)
+                toMatch = toMatch.tail
+              }
+              currentWord :: getNextWord(realEnd)
+          }
+        case Nil => PNil
+      }
+    }
+    getNextWord(words)
   }
 
   protected def getWord(s: String): Word = {
-    val fullTimeRegex = "".r
-    val hoursOnlyRegex = "".r
-    val realNumberRegex = "".r
-    val numberRegex = "".r
-    val properNameRegex = "".r
-
     s match {
+      case positionRegex(_) => new Word(s, NUMERICAL_POSITION)
       case fullTimeRegex(_, _) | hoursOnlyRegex(_)  => new Word(s, TIME)
       case realNumberRegex(_) => new Word(s, REAL)
       case numberRegex(_) => new Word(s, NUMBER)

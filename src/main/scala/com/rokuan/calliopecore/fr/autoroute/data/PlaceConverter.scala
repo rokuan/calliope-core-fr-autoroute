@@ -4,7 +4,7 @@ import com.rokuan.calliopecore.fr.sentence.Word
 import com.rokuan.calliopecore.fr.sentence.Word.WordType
 import com.rokuan.calliopecore.sentence.{ICityInfo, ICountryInfo, ICustomPlace, IPlacePreposition}
 import com.rokuan.calliopecore.sentence.structure.data.nominal.{AdditionalObject, CityObject, CountryObject}
-import com.rokuan.calliopecore.sentence.structure.data.place.{AdditionalPlace, AddressObject, LocationObject, PlaceObject}
+import com.rokuan.calliopecore.sentence.structure.data.place._
 import com.rokuan.calliopecore.sentence.structure.data.place.PlaceAdverbial.PlaceType
 
 /**
@@ -47,11 +47,17 @@ object PlaceConverter {
     case List(preposition: Word, _) => preposition.getPlacePreposition
   } | prep(PlaceType.COUNTRY, true) { _.getPlacePreposition }
 
-  val CityRule = CityTransformer { c: ICityInfo =>
-    new CityObject { city = c }
+  val CityRule = (CityPrepositionTransformer ~ CityTransformer) {
+    case List(prep: IPlacePreposition, c: ICityInfo) =>
+      val city = new CityObject { city = c }
+      city.setPlacePreposition(prep)
+      city
   }
-  val CountryRule = CountryTransformer { c: ICountryInfo =>
-    new CountryObject { country = c }
+  val CountryRule = (CountryPrepositionTransformer ~ CountryTransformer) {
+    case List(prep: IPlacePreposition, c: ICountryInfo) =>
+      val country = new CountryObject { country = c }
+      country.setPlacePreposition(prep)
+      country
   }
 
   val AddressPreposition = PlacePrepositionTransformer(PlaceType.ADDRESS)
@@ -74,7 +80,18 @@ object PlaceConverter {
       placeCategory = w.getPlaceInfo.getPlaceCategory
     }
   }
-  val NamedPlaceTransformer = { /* TODO: */ }
+  val PlaceLinkTransformer = word(PREPOSITION_OF, CONTRACTED) {
+    _.getValue
+  } | (word(PREPOSITION_OF) ~ opt(word(DEFINITE_ARTICLE))) {
+    case List(w1: Word, w2: Option[Word]) =>
+      w1.getValue + w2.map(" " + _.getValue).getOrElse("")
+  }
+  val NamedPlaceTransformer = (word(PLACE_TYPE) ~ opt(PlaceLinkTransformer) ~ list(word(PROPER_NAME))) {
+    case List(t: Word, additional: Option[String], names: List[Word]) =>
+      new NamedPlaceObject {
+        name = t.getValue + " " + additional.map(_ + " ").getOrElse("") + names.map(_.getValue).mkString(" ")
+      }
+  }
   val AddressRule = (AddressPreposition ~ StreetAddressTransformer) {
     case List(preposition: IPlacePreposition, address: AddressObject) =>
       address.setPlacePreposition(preposition)
@@ -82,6 +99,11 @@ object PlaceConverter {
   }
   val PlaceTypeRule = (PlacePrepositionTransformer(PlaceType.PLACE_TYPE) ~ PlaceTypeTransformer){
     case List(preposition: IPlacePreposition, place: PlaceObject) =>
+      place.setPlacePreposition(preposition)
+      place
+  }
+  val NamedPlaceRule = (PlacePrepositionTransformer(PlaceType.NAMED_PLACE) ~ NamedPlaceTransformer) {
+    case List(preposition: IPlacePreposition, place: NamedPlaceObject) =>
       place.setPlacePreposition(preposition)
       place
   }
@@ -95,5 +117,5 @@ object PlaceConverter {
         }
     }
   val PlaceAdverbialRule = AdditionalPlaceRule | WorldLocationRule | CityRule |
-    CountryRule | AddressRule /*| NamedPlaceRule*/ | PlaceTypeRule
+    CountryRule | AddressRule | NamedPlaceRule | PlaceTypeRule
 }

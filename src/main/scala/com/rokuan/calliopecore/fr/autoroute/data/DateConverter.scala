@@ -67,6 +67,11 @@ object DateConverter {
     calendar.getTime()
   }
 
+  val TimePrepositionTransformer = word(TIME_PREPOSITION, CONTRACTED) {
+    _.getTimePreposition
+  } | (word(TIME_PREPOSITION) ~ word(DEFINITE_ARTICLE)) {
+    case List(p: Word, _) => p.getTimePreposition
+  }
   val MonthTransformer = word(DATE_MONTH) { w =>
     val monthDate = new SimpleDateFormat("MMMM", Locale.FRANCE).parse(w.getValue())
     val calendar = Calendar.getInstance()
@@ -78,7 +83,7 @@ object DateConverter {
   val DayTransformer = NumberTransformer | PositionTransformer
   val FromDate = (DayTransformer ~ (opt(MonthTransformer ~ opt(NumberTransformer)))) {
     case List(day: Int, Some(List(month: Int, Some(year: Int)))) =>
-      val date = new Array[Int](TimeUnit.values().length)
+      val date = Array.fill[Int](TimeUnit.values().length)(NullDateValue)
       date(TimeUnit.DAY.ordinal()) = day
       date(TimeUnit.MONTH.ordinal()) = month
       date(TimeUnit.YEAR.ordinal()) = year
@@ -94,10 +99,10 @@ object DateConverter {
       buildDateFromArray(date)
   }
   val RelativeDateTransformer = word(DATE) { w => parseRelativeDate(w.getValue()) }
-  val RelativeDate = RelativeDateTransformer { date: Date =>
+  val RelativeDate = RelativeDateTransformer { d: Date =>
     new SingleTimeObject {
       dateDefinition = DateDefinition.DATE_ONLY
-      date = date
+      date = d
     }
   }
   val ToDate = (DayTransformer ~ MonthTransformer ~ opt(NumberTransformer)) {
@@ -114,11 +119,13 @@ object DateConverter {
     case List(w: Word, _) => w.getTimePreposition
   }
   val FixedDate = (DatePreposition ~ ToDate) {
-    case List(preposition: ITimePreposition, dateArray: Array[Int]) =>
-      new SingleTimeObject() {
+    case List(preposition: ITimePreposition, d: Date) =>
+      val single = new SingleTimeObject() {
         dateDefinition = DateDefinition.DATE_ONLY
-        date = buildDateFromArray(dateArray)
+        date = d
       }
+      single.setTimePreposition(preposition)
+      single
   }
   val StartDate = (word(DEFINITE_ARTICLE) ~ FromDate) {
     case List(_, date: Date) => date
@@ -133,29 +140,29 @@ object DateConverter {
   } | word(TIME_PREPOSITION) { _.getTimePreposition }
   val FromToDate = (word(PREPOSITION_FROM) ~ (FromDate | RelativeDateTransformer) ~
     word(PREPOSITION_TO) ~ (ToDate | RelativeDateTransformer)) {
-    case List(_, from: Date, _, to: Date) =>
+    case List(_, f: Date, _, t: Date) =>
       // TODO: adjust the month of "from" when only the date is given
       // TODO: add an additional parameter
       new TimePeriodObject(){
         fromDateDefinition = DateDefinition.DATE_ONLY
         toDateDefinition = DateDefinition.DATE_ONLY
-        from = from
-        to = to
+        from = f
+        to = t
       }
   }
   val BetweenDate = (word(PREPOSITION_BETWEEN) ~ StartDate ~ word(PREPOSITION_AND) ~ EndDate) {
-    case List(_, from: Date, _, to: Date) =>
+    case List(_, f: Date, _, t: Date) =>
       // TODO: adjust the month of "from" when only the date is given
       // TODO: add an additional parameter
       new TimePeriodObject(){
         fromDateDefinition = DateDefinition.DATE_ONLY
         toDateDefinition = DateDefinition.DATE_ONLY
-        from = from
-        to = to
+        from = f
+        to = t
       }
   }
-  val FullTimeRegex = "(\\d)+h(\\d)+"
-  val HourOnlyRegex = "(\\d)+h"
+  val FullTimeRegex = "(\\d+)h(\\d+)"
+  val HourOnlyRegex = "(\\d+)h"
   val FullTimeTransformer = word(FullTimeRegex) { w =>
     val reg = FullTimeRegex.r
     val reg(hour, minutes) = w.getValue
@@ -169,17 +176,28 @@ object DateConverter {
     val reg(hour) = w.getValue
     val calendar = Calendar.getInstance()
     calendar.set(Calendar.HOUR_OF_DAY, hour.toInt)
+    calendar.set(Calendar.MINUTE, 0)
     calendar.getTime
   }
   val TimeTransformer = (FullTimeTransformer | HourOnlyTransformer)
   val TimeDeclaration = (TimePrefix ~ TimeTransformer){
-    case List(preposition: ITimePreposition, date: Date) =>
+    case List(preposition: ITimePreposition, d: Date) =>
       new SingleTimeObject {
         dateDefinition = DateDefinition.TIME_ONLY
-        date = date
+        date = d
       }
   }
+  /*val DateWithPrepositionRule = (TimePrepositionTransformer ~ FromDate) {
+    case List(prep: ITimePreposition, d: Date) =>
+      val single = new SingleTimeObject {
+        dateDefinition = DateDefinition.DATE_ONLY
+        date = d
+      }
+      single.setTimePreposition(prep)
+      single
+  }*/
 
+  // TODO: parse nominal date (ex: avant la date/le jour de mon mariage)
   val TimeAdverbialRule = FromToDate | BetweenDate |
-    FixedDate | TimeDeclaration | RelativeDate
+    FixedDate | TimeDeclaration | RelativeDate /*| DateWithPrepositionRule*/
 }
