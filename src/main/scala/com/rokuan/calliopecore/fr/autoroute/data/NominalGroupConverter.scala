@@ -1,6 +1,7 @@
 package com.rokuan.calliopecore.fr.autoroute.data
 
 import com.rokuan.calliopecore.fr.sentence.Word
+import com.rokuan.calliopecore.sentence.structure.content.{INominalObject, ISecondObject}
 import com.rokuan.calliopecore.sentence.{ICustomObject, INameInfo}
 import com.rokuan.calliopecore.sentence.structure.data.count.CountObject
 import com.rokuan.calliopecore.sentence.structure.data.nominal.UnitObject.UnitType
@@ -15,9 +16,7 @@ object NominalGroupConverter {
   import com.rokuan.calliopecore.fr.sentence.Word.WordType._
   import com.rokuan.calliopecore.fr.{ sentence => sentence }
 
-  /*val AbstractTarget = word(POSSESSIVE_ADJECTIVE) {
 
-  }*/
   val NumberTransformer = word(NUMBER) { _.getValue.toInt }
   val DoubleTransformer = word(NUMBER) { _.getValue.toDouble }
   val UnitTransformer = word(UNIT) { _.getUnitInfo.getUnitType }
@@ -35,14 +34,6 @@ object NominalGroupConverter {
       }
       count.foreach(o.count = _)
       o
-  }
-
-  val SimpleObject = (CountConverter.CountRule ~ CommonObjectTransformer) {
-    case List(count: CountObject, name: INameInfo) =>
-      new NameObject {
-        count = count
-        `object` = name
-      }
   }
   val PhoneNumber = (word(DEFINITE_ARTICLE) ~ list(NumberTransformer)) {
     case List(_, numbers: List[Int]) =>
@@ -77,14 +68,7 @@ object NominalGroupConverter {
     case List(_, l: Word) =>
       new LanguageObject { language = l.getLanguageInfo }
   }
-  val CommonObjectRule = (opt(CountConverter.CountRule) ~ CommonObjectTransformer) {
-    case List(count: Option[CountObject], commonName: INameInfo) =>
-      val o = new NameObject {
-        `object` = commonName
-      }
-      count.foreach(o.count = _)
-      o
-  }
+
   val PronounTransformer = word(PERSONAL_PRONOUN) { w => new PronounSubject(sentence.Pronoun.parseSubjectPronoun(w.getValue))}
 
   val SimpleObjectOnlyRule = word(COMMON_NAME) { w =>
@@ -93,7 +77,46 @@ object NominalGroupConverter {
     new AdditionalObject { `object` = w.getCustomObject }
   }
 
-  val SubjectRule = Quantity | PhoneNumber | PlaceConverter.CityRule | PlaceConverter.CountryRule |
-    PronounTransformer | DateConverter.FixedDate | Color | Language | SimpleObject
+  val CommonObjectAuxRule = (opt(CountConverter.CountRule) ~ CommonObjectTransformer) {
+    case List(count: Option[CountObject], commonName: INameInfo) =>
+      val o = new NameObject {
+        `object` = commonName
+      }
+      count.foreach(o.count = _)
+      o
+  }
+
+  val SecondDirectObject = AdditionalObjectTransformer | CommonObjectAuxRule
+  val LastDirectObject = PersonObjectRule
+  val SecondDirectObjectRule = (word(PREPOSITION_OF) ~ SecondDirectObject) {
+    case List(_, directObject: INominalObject with ISecondObject) => directObject
+  }
+  val LastDirectObjectRule = (word(PREPOSITION_OF) ~ LastDirectObject) {
+    case List(_, directObject: INominalObject) => directObject
+  }
+  val SecondDirectObjectList = (list(SecondDirectObjectRule) ~ LastDirectObjectRule) {
+    case List(seconds: List[INominalObject with ISecondObject], last: INominalObject) =>
+      val first = seconds.head
+      val lastSecond = seconds.tail.foldLeft(first) { case (acc, next) => acc.setNominalSecondObject(next); next }
+      lastSecond.setNominalSecondObject(last)
+      first
+  } ~ list(SecondDirectObjectRule) { seconds =>
+    val first = seconds.head
+    seconds.tail.foldLeft(first) { case (acc, next) => acc.setNominalSecondObject(next); next }
+    first
+  }
+
+  val CommonObjectRule = (opt(CountConverter.CountRule) ~ CommonObjectTransformer ~ opt(SecondDirectObjectList)) {
+    case List(count: Option[CountObject], commonName: INameInfo, next: Option[INominalObject]) =>
+      val o = new NameObject {
+        `object` = commonName
+      }
+      count.foreach(o.count = _)
+      next.foreach(o.setNominalSecondObject)
+      o
+  }
+
+  val SubjectRule = AdditionalObjectTransformer | PersonObjectRule | Quantity | PhoneNumber | PlaceConverter.CityRule | PlaceConverter.CountryRule |
+    PronounTransformer | DateConverter.FixedDate | Color | Language | CommonObjectRule
   val DirectObjectRule = AdditionalObjectTransformer | Quantity | CommonObjectRule | AdditionalPersonTransformer
 }

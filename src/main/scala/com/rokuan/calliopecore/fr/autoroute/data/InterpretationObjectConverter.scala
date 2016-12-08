@@ -18,6 +18,7 @@ object InterpretationObjectConverter {
   import com.rokuan.calliopecore.fr.autoroute.pattern.WordRules._
   import com.rokuan.calliopecore.fr.sentence.Word.WordType._
   import com.rokuan.autoroute.rules.Rule._
+  import com.rokuan.calliopecore.fr.autoroute.pattern.VerbRules._
 
   private def applyAdverbials(o: InterpretationObject, adverbials: AdverbialsInfo) = {
     adverbials.where.foreach(o.where = _)
@@ -92,7 +93,16 @@ object InterpretationObjectConverter {
     case List(t: QuestionType, verb: ActionInfo, directObject: NominalGroup, adverbials: AdverbialsInfo) =>
       createQuestionObject(t, verb, Some(directObject), adverbials)
   }
-  val WhoQuestion = (WhoTransformer ~ VerbConverter.AffirmativeConjugatedVerb ~ opt(NominalGroupConverter.SubjectRule) ~ AdverbialListTransformer) {
+  val WhoQuestion = (WhoTransformer ~ verb("être") ~ NominalGroupConverter.SubjectRule ~ AdverbialListTransformer) {
+    case List(t: QuestionType, v: Word, directObject: INominalObject, adverbials: AdverbialsInfo) =>
+      val question = new QuestionObject {
+        questionType = t
+        action = new ActionObject(v.getVerbInfo.getTense, v.getVerbInfo)
+        what = directObject
+      }
+      applyAdverbials(question, adverbials)
+      question
+  } | (WhoTransformer ~ VerbConverter.AffirmativeConjugatedVerb ~ opt(NominalGroupConverter.SubjectRule) ~ AdverbialListTransformer) {
     case List(t: QuestionType, verb: ActionInfo, subject: Option[INominalObject], adverbials: AdverbialsInfo) =>
       val question = new QuestionObject {
         questionType = t

@@ -1,6 +1,5 @@
 package com.rokuan.calliopecore.fr.autoroute.data
 
-import com.rokuan.autoroute.matchers.Transformer
 import com.rokuan.calliopecore.fr.data.nominal.PronounObject
 import com.rokuan.calliopecore.fr.sentence._
 import com.rokuan.calliopecore.sentence.ActionObject
