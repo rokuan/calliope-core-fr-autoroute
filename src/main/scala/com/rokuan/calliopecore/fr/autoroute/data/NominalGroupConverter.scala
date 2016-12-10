@@ -1,6 +1,6 @@
 package com.rokuan.calliopecore.fr.autoroute.data
 
-import com.rokuan.calliopecore.fr.sentence.Word
+import com.rokuan.calliopecore.fr.autoroute.sentence.{SubjectPronoun, Word}
 import com.rokuan.calliopecore.sentence.structure.content.{INominalObject, ISecondObject}
 import com.rokuan.calliopecore.sentence.{ICustomObject, INameInfo}
 import com.rokuan.calliopecore.sentence.structure.data.count.CountObject
@@ -13,9 +13,7 @@ import com.rokuan.calliopecore.sentence.structure.data.nominal._
 object NominalGroupConverter {
   import com.rokuan.autoroute.rules.Rule._
   import com.rokuan.calliopecore.fr.autoroute.pattern.WordRules._
-  import com.rokuan.calliopecore.fr.sentence.Word.WordType._
-  import com.rokuan.calliopecore.fr.{ sentence => sentence }
-
+  import com.rokuan.calliopecore.fr.autoroute.sentence.Word.WordType._
 
   val NumberTransformer = word(NUMBER) { _.getValue.toInt }
   val DoubleTransformer = word(NUMBER) { _.getValue.toDouble }
@@ -69,7 +67,7 @@ object NominalGroupConverter {
       new LanguageObject { language = l.getLanguageInfo }
   }
 
-  val PronounTransformer = word(PERSONAL_PRONOUN) { w => new PronounSubject(sentence.Pronoun.parseSubjectPronoun(w.getValue))}
+  val PronounTransformer = word(PERSONAL_PRONOUN) { w => new PronounSubject(SubjectPronoun(w.getValue))}
 
   val SimpleObjectOnlyRule = word(COMMON_NAME) { w =>
     new NameObject { `object` = w.getNameInfo }

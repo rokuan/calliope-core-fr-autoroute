@@ -1,7 +1,7 @@
 package com.rokuan.calliopecore.fr.autoroute.data
 
-import com.rokuan.calliopecore.fr.sentence.Word
-import com.rokuan.calliopecore.fr.sentence.Word.WordType
+import com.rokuan.calliopecore.fr.autoroute.sentence.Word
+import com.rokuan.calliopecore.fr.autoroute.sentence.Word.WordType
 import com.rokuan.calliopecore.sentence.{ICityInfo, ICountryInfo, ICustomPlace, IPlacePreposition}
 import com.rokuan.calliopecore.sentence.structure.data.nominal.{AdditionalObject, CityObject, CountryObject}
 import com.rokuan.calliopecore.sentence.structure.data.place._
@@ -11,7 +11,7 @@ import com.rokuan.calliopecore.sentence.structure.data.place.PlaceAdverbial.Plac
   * Created by Christophe on 27/11/2016.
   */
 object PlaceConverter {
-  import com.rokuan.calliopecore.fr.sentence.Word.WordType._
+  import com.rokuan.calliopecore.fr.autoroute.sentence.Word.WordType._
   import com.rokuan.calliopecore.fr.autoroute.pattern.WordRules._
   import com.rokuan.calliopecore.fr.autoroute.pattern.PrepositionRules._
   import com.rokuan.autoroute.rules.Rule._

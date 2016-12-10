@@ -1,7 +1,6 @@
 package com.rokuan.calliopecore.fr.autoroute.data
 
-import com.rokuan.calliopecore.fr.sentence.{Pronoun, Word}
-import com.rokuan.calliopecore.fr.structure.Question
+import com.rokuan.calliopecore.fr.autoroute.sentence.{DirectPronoun, Question, TargetPronoun, Word}
 import com.rokuan.calliopecore.sentence.ActionObject
 import com.rokuan.calliopecore.sentence.structure.{AffirmationObject, InterpretationObject, OrderObject, QuestionObject}
 import com.rokuan.calliopecore.sentence.structure.QuestionObject.QuestionType
@@ -16,7 +15,7 @@ case class AdverbialsInfo(when: Option[ITimeObject], where: Option[IPlaceObject]
 
 object InterpretationObjectConverter {
   import com.rokuan.calliopecore.fr.autoroute.pattern.WordRules._
-  import com.rokuan.calliopecore.fr.sentence.Word.WordType._
+  import com.rokuan.calliopecore.fr.autoroute.sentence.Word.WordType._
   import com.rokuan.autoroute.rules.Rule._
   import com.rokuan.calliopecore.fr.autoroute.pattern.VerbRules._
 
@@ -68,9 +67,9 @@ object InterpretationObjectConverter {
       order
   }
   val InterrogativePrefixTransformer = word(INTERROGATIVE_PRONOUN) { q =>
-    Question.parseInterrogativePronoun(q.getValue)
+    Question(q.getValue)
   } | word(INTERROGATIVE_ADJECTIVE) { q =>
-    Question.parseInterrogativePronoun(q.getValue)
+    Question(q.getValue)
   }
 
   val HowQuestion = (HowTransformer ~ VerbConverter.InfinitiveVerbRule ~ opt(NominalGroupConverter.DirectObjectRule) ~ AdverbialListTransformer){
@@ -132,8 +131,8 @@ object InterpretationObjectConverter {
     case List(verb: ActionObject, s: Word, t: Word, adverbials: AdverbialsInfo) =>
       val order = new OrderObject {
         action = verb
-        target = new AbstractTarget(Pronoun.parseTargetPronoun(t.getValue))
-        what = new PronounSubject(Pronoun.parseDirectPronoun(s.getValue))
+        target = new AbstractTarget(TargetPronoun(t.getValue))
+        what = new PronounSubject(DirectPronoun(s.getValue))
       }
       applyAdverbials(order, adverbials)
       order
@@ -143,7 +142,7 @@ object InterpretationObjectConverter {
       val order = new OrderObject {
         action = verb
         what = source
-        target = new AbstractTarget(Pronoun.parseTargetPronoun(t.getValue))
+        target = new AbstractTarget(TargetPronoun(t.getValue))
       }
       applyAdverbials(order, adverbials)
       order
@@ -159,7 +158,7 @@ object InterpretationObjectConverter {
     case List(verb: ActionObject, source: Word, adverbials: AdverbialsInfo) =>
       val order = new OrderObject {
         action = verb
-        what = new AbstractTarget(Pronoun.parseDirectPronoun(source.getValue))
+        what = new AbstractTarget(DirectPronoun(source.getValue))
       }
       applyAdverbials(order, adverbials)
       order

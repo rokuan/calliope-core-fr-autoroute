@@ -1,10 +1,10 @@
 import com.rokuan.autoroute.matchers.Route
 import com.rokuan.calliopecore.fr.autoroute.data.CountConverter
-import com.rokuan.calliopecore.fr.sentence.Word
-import com.rokuan.calliopecore.fr.sentence.Word.WordType._
 import org.scalatest.{FlatSpec, Matchers}
 import com.rokuan.autoroute.Producer._
+import com.rokuan.calliopecore.fr.autoroute.sentence.Word
 import com.rokuan.calliopecore.sentence.structure.data.count.{CountObject, FixedItemObject, LimitedItemsObject}
+import com.rokuan.calliopecore.fr.autoroute.sentence.Word.WordType._
 
 /**
   * Created by Christophe on 05/12/2016.

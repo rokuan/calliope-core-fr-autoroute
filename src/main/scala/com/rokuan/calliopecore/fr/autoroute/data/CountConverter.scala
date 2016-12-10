@@ -1,7 +1,7 @@
 package com.rokuan.calliopecore.fr.autoroute.data
 
-import com.rokuan.calliopecore.fr.sentence.Word
-import com.rokuan.calliopecore.fr.sentence.Word.WordType
+import com.rokuan.calliopecore.fr.autoroute.sentence.Word
+import com.rokuan.calliopecore.fr.autoroute.sentence.Word.WordType
 import com.rokuan.calliopecore.sentence.structure.data.count.CountObject.ArticleType
 import com.rokuan.calliopecore.sentence.structure.data.count._
 
@@ -10,7 +10,7 @@ import com.rokuan.calliopecore.sentence.structure.data.count._
   */
 object CountConverter {
   import com.rokuan.calliopecore.fr.autoroute.pattern.WordRules._
-  import com.rokuan.calliopecore.fr.sentence.Word.WordType._
+  import com.rokuan.calliopecore.fr.autoroute.sentence.Word.WordType._
 
   private val NumberMap = Array("un", "deux", "trois", "quatre", "cinq", "six",
     "sept", "huit", "neuf", "dix", "onze", "douze", "treize", "quatorze", "quinze",

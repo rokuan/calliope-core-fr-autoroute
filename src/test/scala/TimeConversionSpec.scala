@@ -2,8 +2,8 @@ import java.text.SimpleDateFormat
 
 import com.rokuan.autoroute.matchers.Route
 import com.rokuan.calliopecore.fr.autoroute.data.DateConverter
-import com.rokuan.calliopecore.fr.sentence.{TimePreposition, Word}
-import com.rokuan.calliopecore.fr.sentence.Word.WordType._
+import com.rokuan.calliopecore.fr.autoroute.sentence.{TimePreposition, Word, WordInfo}
+import com.rokuan.calliopecore.fr.autoroute.sentence.Word.WordType._
 import com.rokuan.calliopecore.sentence.structure.data.time.TimeAdverbial.{DateDefinition, TimeContext, TimeType}
 import com.rokuan.calliopecore.sentence.structure.data.time.{SingleTimeObject, TimePeriodObject}
 import org.scalatest.{FlatSpec, Matchers}
@@ -85,8 +85,9 @@ class TimeConversionSpec extends FlatSpec with Matchers {
   }
 
   "8" should "9" in {
-    val until = new Word("jusqu'au", TIME_PREPOSITION, CONTRACTED)
-    until.setTimePreposition(new TimePreposition("jusqu'au", TimeContext.UNTIL))
+    val until = new Word("jusqu'au",
+      wordInfo = new WordInfo("jusqu'au", CONTRACTED),
+      timePreposition = new TimePreposition("jusqu'au", TimeContext.UNTIL))
     val words = List(
       until,
       new Word("1er", NUMERICAL_POSITION),

@@ -1,6 +1,6 @@
 package com.rokuan.calliopecore.fr.autoroute.data
 
-import com.rokuan.calliopecore.fr.sentence.Word
+import com.rokuan.calliopecore.fr.autoroute.sentence.Word
 import com.rokuan.calliopecore.sentence.IWayPreposition
 import com.rokuan.calliopecore.sentence.structure.data.nominal.{ColorObject, LanguageObject}
 import com.rokuan.calliopecore.sentence.structure.data.way.{AdditionalMode, TransportObject}
@@ -12,7 +12,7 @@ import com.rokuan.calliopecore.sentence.structure.data.way.WayAdverbial.WayType
 object WayConverter {
   import com.rokuan.calliopecore.fr.autoroute.pattern.WordRules._
   import com.rokuan.calliopecore.fr.autoroute.pattern.PrepositionRules._
-  import com.rokuan.calliopecore.fr.sentence.Word.WordType._
+  import com.rokuan.calliopecore.fr.autoroute.sentence.Word.WordType._
 
   val WayPrepositionTransformer = { p: WayType =>
     prep(p) { _.getWayPreposition }

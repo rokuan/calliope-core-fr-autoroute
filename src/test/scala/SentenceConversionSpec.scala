@@ -1,8 +1,8 @@
 import com.rokuan.autoroute.matchers.Route
 import com.rokuan.calliopecore.fr.autoroute.data.InterpretationObjectConverter
-import com.rokuan.calliopecore.fr.sentence.Verb.ConjugationTense
-import com.rokuan.calliopecore.fr.sentence._
-import com.rokuan.calliopecore.fr.sentence.Word.WordType._
+import com.rokuan.calliopecore.fr.autoroute.sentence.Verb.ConjugationTense
+import com.rokuan.calliopecore.fr.autoroute.sentence._
+import com.rokuan.calliopecore.fr.autoroute.sentence.Word.WordType._
 import com.rokuan.calliopecore.sentence.IAction.{ActionType, Form}
 import com.rokuan.calliopecore.sentence.structure.InterpretationObject.RequestType
 import com.rokuan.calliopecore.sentence.structure.QuestionObject
@@ -23,18 +23,18 @@ class SentenceConversionSpec extends FlatSpec with Matchers {
   val parser = new Route(InterpretationObjectConverter.InterpretationObjectRule)
 
   "1" should "2" in {
-    val go = new Word("aller", VERB, COMMON_NAME)
     val toGo = new Verb("aller", false, new Action(ActionType.GO))
-    val toGoConjug = new VerbConjugation(ConjugationTense.PRESENT, Form.INFINITIVE, null, "aller", toGo)
-    toGoConjug.setVerb(toGo)
-    go.setVerbInfo(toGoConjug)
-    val to = new Word("à", PLACE_PREPOSITION)
-    to.setPlacePreposition(new PlacePreposition("à", PlaceContext.TO, PlaceType.NAMED_PLACE, PlaceType.CITY))
-    val by = new Word("en", WAY_PREPOSITION)
-    val car = new Word("voiture", COMMON_NAME, MEAN_OF_TRANSPORT)
-
-    by.setWayPreposition(new WayPreposition("en", WayContext.BY, WayType.TRANSPORT))
-    car.setTransportInfo(new TransportInfo("voiture", TransportType.CAR))
+    val toGoConjug = new VerbConjugation("aller", toGo, ConjugationTense.PRESENT, Form.INFINITIVE, null)
+    val go = new Word("aller",
+      wordInfo = new WordInfo("aller", COMMON_NAME),
+      verbInfo = toGoConjug)
+    val to = new Word("à",
+      placePreposition = new PlacePreposition("à", PlaceContext.TO, PlaceType.NAMED_PLACE, PlaceType.CITY))
+    val by = new Word("en",
+      wayPreposition = new WayPreposition("en", WayContext.BY, WayType.TRANSPORT))
+    val car = new Word("voiture",
+      wordInfo = new WordInfo("voiture", COMMON_NAME),
+      transportInfo = new TransportInfo("voiture", TransportType.CAR))
 
     val words = List(
       new Word("comment", INTERROGATIVE_PRONOUN),
@@ -62,15 +62,13 @@ class SentenceConversionSpec extends FlatSpec with Matchers {
   }
 
   "2" should "3" in {
-    val be = new Word("est", VERB, AUXILIARY)
     val toBe = new Verb("être", true, new Action(ActionType.BE))
-    val toBeConjug = new VerbConjugation(ConjugationTense.PRESENT, Form.INDICATIVE, Verb.Pronoun.IL_ELLE_ON, "être", toBe)
-    toBeConjug.setVerb(toBe)
-    be.setVerbInfo(toBeConjug)
+    val toBeConjug = new VerbConjugation("est", toBe, ConjugationTense.PRESENT, Form.INDICATIVE, Verb.Pronoun.IL_ELLE_ON)
+
+    val be = new Word("est", verbInfo = toBeConjug)
     val personName = "Arnold Schwarzenegger"
-    val person = new Word(personName, CUSTOM_PERSON)
-    val schwarzy = new CustomPerson("Arnold Schwarzenegger", "SCHWARZY")
-    person.setCustomPerson(schwarzy)
+    val person = new Word(personName,
+      customPerson = new CustomPerson("Arnold Schwarzenegger", "SCHWARZY"))
 
     val words = List(
       new Word("qui", INTERROGATIVE_PRONOUN),
@@ -87,20 +85,13 @@ class SentenceConversionSpec extends FlatSpec with Matchers {
     question.what.asInstanceOf[AdditionalPerson].person.getValue shouldBe personName
   }
 
-
-
   "3" should "4" in {
-    val  find = new Word("trouve", VERB)
-    val toFind = new Verb("trouver", false, new Action(ActionType.FIND))
-    val toFindConjug = new VerbConjugation(ConjugationTense.PRESENT, Form.IMPERATIVE, Verb.Pronoun.TU, "trouver", toFind)
-    toFindConjug.setVerb(toFind)
-    find.setVerbInfo(toFindConjug)
-    val videos = new Word("vidéos", COMMON_NAME)
-    videos.setNameInfo(new NameInfo("vidéos", "VIDEO"))
-    val cats = new Word("chats", COMMON_NAME)
-    cats.setNameInfo(new NameInfo("chats", "CAT"))
-    val gutter = new Word("gouttière", COMMON_NAME)
-    gutter.setNameInfo(new NameInfo("gouttière", "GUTTER"))
+    val toFind = new Verb("trouver", new Action(ActionType.FIND))
+    val toFindConjug = new VerbConjugation("trouve", toFind, ConjugationTense.PRESENT, Form.IMPERATIVE, Verb.Pronoun.TU)
+    val find = new Word("trouve", verbInfo = toFindConjug)
+    val videos = new Word("vidéos", nameInfo = new NameInfo("vidéos", "VIDEO"))
+    val cats = new Word("chats", nameInfo = new NameInfo("chats", "CAT"))
+    val gutter = new Word("gouttière", nameInfo = new NameInfo("gouttière", "GUTTER"))
 
     val words = List(
       find,

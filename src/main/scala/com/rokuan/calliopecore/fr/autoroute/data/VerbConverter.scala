@@ -1,7 +1,6 @@
 package com.rokuan.calliopecore.fr.autoroute.data
 
-import com.rokuan.calliopecore.fr.data.nominal.PronounObject
-import com.rokuan.calliopecore.fr.sentence._
+import com.rokuan.calliopecore.fr.autoroute.sentence._
 import com.rokuan.calliopecore.sentence.ActionObject
 import com.rokuan.calliopecore.sentence.IAction.{ActionType, Form, Tense}
 import com.rokuan.calliopecore.sentence.IPronoun.PronounSource
@@ -19,13 +18,13 @@ object ActionInfo {
 }
 
 object VerbConverter {
-  import com.rokuan.calliopecore.fr.sentence.Word.WordType._
+  import com.rokuan.calliopecore.fr.autoroute.sentence.Word.WordType._
   import com.rokuan.calliopecore.fr.autoroute.pattern.WordRules._
   import com.rokuan.autoroute.rules.Rule._
   import com.rokuan.calliopecore.fr.autoroute.pattern.VerbRules._
 
   val TargetPronounTransformer = word(TARGET_PRONOUN) { p =>
-    new PronounSubject(Pronoun.parseTargetPronoun(p.getValue))
+    new PronounSubject(TargetPronoun(p.getValue))
   }
   val ReflexivePronounTransformer = word(REFLEXIVE_PRONOUN) { p =>
     new PronounObject(p.getValue, p.getTypes)
@@ -34,7 +33,7 @@ object VerbConverter {
 
   }
   val PersonalPronounTransformer = word(PERSONAL_PRONOUN) { p =>
-    new PronounSubject(Pronoun.parseSubjectPronoun(p.getValue))
+    new PronounSubject(SubjectPronoun(p.getValue))
   }
 
   val PronounTransformer = ReflexivePronounTransformer
@@ -95,7 +94,7 @@ object VerbConverter {
     case List(_, v: Word,_, pronoun: Word) =>
       // TODO: find the right subject
       val conjugation = new VerbConjugation("y " + v.getValue, v.getVerbInfo.asInstanceOf[VerbConjugation],
-        new Verb("y avoir", false, new Action(ActionType.THERE_IS)))
+        new Verb("y avoir", new Action(ActionType.THERE_IS)))
       val action = new ActionObject(conjugation.getTense, conjugation)
       val subject = new PronounSubject(new Pronoun("", PronounSource.UNDEFINED))
       ActionInfo(Some(subject), Option.empty[PronounSubject], action)

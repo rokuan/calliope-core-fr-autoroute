@@ -1,7 +1,7 @@
 package com.rokuan.calliopecore.fr.autoroute.pattern
 
 import com.rokuan.autoroute.rules.TerminalState
-import com.rokuan.calliopecore.fr.sentence.Word
+import com.rokuan.calliopecore.fr.autoroute.sentence.Word
 import com.rokuan.calliopecore.pattern.WordMatcher
 
 /**

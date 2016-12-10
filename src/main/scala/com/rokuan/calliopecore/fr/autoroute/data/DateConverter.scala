@@ -3,7 +3,7 @@ package com.rokuan.calliopecore.fr.autoroute.data
 import java.text.SimpleDateFormat
 import java.util.{Calendar, Date, Locale}
 
-import com.rokuan.calliopecore.fr.sentence.{TimePreposition, Word}
+import com.rokuan.calliopecore.fr.autoroute.sentence.{TimePreposition, Word}
 import com.rokuan.calliopecore.sentence.ITimePreposition
 import com.rokuan.calliopecore.sentence.structure.data.time.{SingleTimeObject, TimeAdverbial, TimePeriodObject}
 import com.rokuan.calliopecore.sentence.structure.data.time.TimeAdverbial.{DateDefinition, TimeContext, TimeUnit}
@@ -13,7 +13,7 @@ import com.rokuan.calliopecore.sentence.structure.data.time.TimeAdverbial.{DateD
   */
 object DateConverter {
   import com.rokuan.calliopecore.fr.autoroute.pattern.WordRules._
-  import com.rokuan.calliopecore.fr.sentence.Word.WordType._
+  import com.rokuan.calliopecore.fr.autoroute.sentence.Word.WordType._
   import com.rokuan.autoroute.rules.Rule._
 
   private val NullDateValue = -1

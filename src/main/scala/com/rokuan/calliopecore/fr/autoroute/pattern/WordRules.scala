@@ -1,20 +1,20 @@
 package com.rokuan.calliopecore.fr.autoroute.pattern
 
 import com.rokuan.autoroute.rules.TerminalState
-import com.rokuan.calliopecore.fr.pattern.SimpleWordMatcher
-import com.rokuan.calliopecore.fr.sentence.Word
-import com.rokuan.calliopecore.fr.sentence.Word.WordType
+import com.rokuan.calliopecore.fr.autoroute.pattern.matcher.SimpleWordMatcherBuilder
+import com.rokuan.calliopecore.fr.autoroute.sentence.Word
+import com.rokuan.calliopecore.fr.autoroute.sentence.Word.WordType
 
 /**
   * Created by Christophe on 27/11/2016.
   */
 object WordRules {
-  def word(w: WordType*): TerminalState[Word] = new TerminalMatcher(new SimpleWordMatcher().getBuilder().setTypes(w: _*).build())
+  def word(w: WordType*): TerminalState[Word] = new TerminalMatcher(new SimpleWordMatcherBuilder().setTypes(w: _*).build())
 
-  def word(v: String): TerminalState[Word] = new TerminalMatcher(new SimpleWordMatcher().getBuilder().setWordRegex(v).build())
+  def word(v: String): TerminalState[Word] = new TerminalMatcher(new SimpleWordMatcherBuilder().setRegex(v).build())
 
-  def word(v: String, w: WordType*): TerminalState[Word] = new TerminalMatcher(new SimpleWordMatcher().getBuilder()
+  def word(v: String, w: WordType*): TerminalState[Word] = new TerminalMatcher(new SimpleWordMatcherBuilder()
     .setTypes(w: _*)
-    .setWordRegex(v)
+    .setRegex(v)
     .build())
 }
