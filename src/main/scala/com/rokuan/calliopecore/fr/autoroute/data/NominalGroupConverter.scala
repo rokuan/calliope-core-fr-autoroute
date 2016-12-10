@@ -98,7 +98,7 @@ object NominalGroupConverter {
       val lastSecond = seconds.tail.foldLeft(first) { case (acc, next) => acc.setNominalSecondObject(next); next }
       lastSecond.setNominalSecondObject(last)
       first
-  } ~ list(SecondDirectObjectRule) { seconds =>
+  } | list(SecondDirectObjectRule) { seconds =>
     val first = seconds.head
     seconds.tail.foldLeft(first) { case (acc, next) => acc.setNominalSecondObject(next); next }
     first

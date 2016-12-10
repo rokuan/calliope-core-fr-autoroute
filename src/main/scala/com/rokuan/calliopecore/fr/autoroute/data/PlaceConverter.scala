@@ -30,9 +30,9 @@ object PlaceConverter {
   val CustomPlaceTransformer = word(CUSTOM_PLACE) { _.getCustomPlace }
   val AdditionalPlacePreposition = PlacePrepositionTransformer(PlaceType.CUSTOM)
   val AdditionalPlaceRule = (AdditionalPlacePreposition ~ CustomPlaceTransformer) {
-    case List(preposition: IPlacePreposition, place: ICustomPlace) =>
+    case List(preposition: IPlacePreposition, p: ICustomPlace) =>
       new AdditionalPlace {
-        place = place
+        place = p
         setPlacePreposition(preposition)
       }
   }
@@ -91,6 +91,10 @@ object PlaceConverter {
       new NamedPlaceObject {
         name = t.getValue + " " + additional.map(_ + " ").getOrElse("") + names.map(_.getValue).mkString(" ")
       }
+  } | list(word(PROPER_NAME)) { names: List[Word] =>
+      new NamedPlaceObject {
+        name = names.map(_.getValue).mkString(" ")
+      }
   }
   val AddressRule = (AddressPreposition ~ StreetAddressTransformer) {
     case List(preposition: IPlacePreposition, address: AddressObject) =>
@@ -110,10 +114,10 @@ object PlaceConverter {
 
   val WorldLocationRule =
     (CityPrepositionTransformer ~ CityTransformer ~ CountryPrepositionTransformer ~ CountryTransformer) {
-      case List(_, city: ICityInfo, _, country: ICountryInfo) =>
+      case List(_, cityObject: ICityInfo, _, countryObject: ICountryInfo) =>
         new LocationObject {
-          city = city
-          country = country
+          city = cityObject
+          country = countryObject
         }
     }
   val PlaceAdverbialRule = AdditionalPlaceRule | WorldLocationRule | CityRule |

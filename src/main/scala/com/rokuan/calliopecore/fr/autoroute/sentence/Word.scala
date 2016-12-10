@@ -46,7 +46,7 @@ class Word(val value: String,
     Option(colorInfo).foreach(_ => additionalTypes.add(WordType.COLOR))
     Option(nameInfo).foreach(_ => additionalTypes.add(WordType.COMMON_NAME))
     Option(adjectiveInfo).foreach(_ => additionalTypes.add(WordType.ADJECTIVE))
-    Option(placeInfo).foreach(_ => additionalTypes.add(WordType.PLACE))
+    Option(placeInfo).foreach(_ => additionalTypes.add(WordType.PLACE_TYPE))
     Option(unitInfo).foreach(_ => additionalTypes.add(WordType.UNIT))
     Option(firstNameInfo).foreach(_ => additionalTypes.add(WordType.FIRSTNAME))
     Option(characterInfo).foreach(_ => additionalTypes.add(WordType.PERSON_TYPE))

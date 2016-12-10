@@ -14,11 +14,11 @@ class VerbMatcher(val auxiliary: Boolean, val verbRegex: String, val conjugation
       false
     } else if(auxiliary && !w.isOfType(AUXILIARY)){
       false
-    } else if(Option(conjugationRegex).map(r => !w.getValue.matches(r)).getOrElse(true)) {
+    } else if(Option(conjugationRegex).map(r => !w.getValue.matches(r)).getOrElse(false)) {
       false
-    } else if(Option(verbRegex).map(r => !w.getVerbInfo.asInstanceOf[VerbConjugation].getVerb().getValue().matches(r)).getOrElse(true)) {
+    } else if(Option(verbRegex).map(r => !w.getVerbInfo.asInstanceOf[VerbConjugation].getVerb().getValue().matches(r)).getOrElse(false)) {
       false
-    } else if(Option(form).map(f => w.getVerbInfo.getForm != f).getOrElse(true)) {
+    } else if(Option(form).map(f => w.getVerbInfo.getForm != f).getOrElse(false)) {
       false
     } else {
       true

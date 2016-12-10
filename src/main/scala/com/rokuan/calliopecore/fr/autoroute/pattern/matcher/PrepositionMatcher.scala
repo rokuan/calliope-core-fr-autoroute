@@ -19,7 +19,8 @@ abstract class PrepositionMatcher[FollowerType](val contracted: Boolean, val fol
       false
     } else {
       val prep = getPreposition(w)
-      followers.forall(prep.canBeFollowedBy)
+      Option(prep).map(p => followers.forall(p.canBeFollowedBy))
+        .getOrElse(false)
     }
   }
 

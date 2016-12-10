@@ -11,6 +11,7 @@ import com.rokuan.calliopecore.sentence.structure.data.nominal.AdditionalPerson
 import com.rokuan.calliopecore.sentence.structure.data.nominal.NominalGroup.GroupType
 import com.rokuan.calliopecore.sentence.structure.data.place.NamedPlaceObject
 import com.rokuan.calliopecore.sentence.structure.data.place.PlaceAdverbial.{PlaceContext, PlaceType}
+import com.rokuan.calliopecore.sentence.structure.data.place.PlaceObject.PlaceCategory
 import com.rokuan.calliopecore.sentence.structure.data.way.TransportObject
 import com.rokuan.calliopecore.sentence.structure.data.way.TransportObject.TransportType
 import com.rokuan.calliopecore.sentence.structure.data.way.WayAdverbial.{WayContext, WayType}
@@ -23,7 +24,7 @@ class SentenceConversionSpec extends FlatSpec with Matchers {
   val parser = new Route(InterpretationObjectConverter.InterpretationObjectRule)
 
   "1" should "2" in {
-    val toGo = new Verb("aller", false, new Action(ActionType.GO))
+    val toGo = new Verb("aller", new Action(ActionType.GO))
     val toGoConjug = new VerbConjugation("aller", toGo, ConjugationTense.PRESENT, Form.INFINITIVE, null)
     val go = new Word("aller",
       wordInfo = new WordInfo("aller", COMMON_NAME),
@@ -33,7 +34,7 @@ class SentenceConversionSpec extends FlatSpec with Matchers {
     val by = new Word("en",
       wayPreposition = new WayPreposition("en", WayContext.BY, WayType.TRANSPORT))
     val car = new Word("voiture",
-      wordInfo = new WordInfo("voiture", COMMON_NAME),
+      nameInfo = new NameInfo("voiture", "CAR"),
       transportInfo = new TransportInfo("voiture", TransportType.CAR))
 
     val words = List(
@@ -41,9 +42,13 @@ class SentenceConversionSpec extends FlatSpec with Matchers {
       go,
       to,
       new Word("la", DEFINITE_ARTICLE),
-      new Word("Mairie", PLACE_TYPE, PROPER_NAME, COMMON_NAME),
+      new Word("Mairie",
+        wordInfo = new WordInfo("Mairie", PROPER_NAME),
+        placeInfo = new PlaceInfo("Mairie", PlaceCategory.LAWYER)),
       new Word("de", PREPOSITION_OF),
-      new Word("Paris", PROPER_NAME, CITY),
+      new Word("Paris",
+        wordInfo = new WordInfo("Paris", PROPER_NAME),
+        cityInfo = new CityInfo("Paris", 0, 0)),
       by,
       car
     )

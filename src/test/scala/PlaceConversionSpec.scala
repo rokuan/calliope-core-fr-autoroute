@@ -40,7 +40,7 @@ class PlaceConversionSpec extends FlatSpec with Matchers {
       france
     )
     val placeObject = parser(words)
-    placeObject.getPlaceType shouldBe COUNTRY
+    placeObject.getPlaceType shouldBe PlaceType.COUNTRY
     val country = placeObject.asInstanceOf[CountryObject]
     country.country.getValue shouldBe "France"
     country.country.getCountryCode shouldBe "FR"
