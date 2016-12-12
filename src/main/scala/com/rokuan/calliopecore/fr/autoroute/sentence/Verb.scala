@@ -3,7 +3,7 @@ package com.rokuan.calliopecore.fr.autoroute.sentence
 /**
   * Created by Christophe on 09/12/2016.
   */
-case class Verb(infinitive: String, auxiliary: Boolean = false, protected val initialAction: Action = null, protected val reflexiveAction: Action = null) {
+case class Verb(infinitive: String, auxiliary: Boolean = false, initialAction: Action = null, reflexiveAction: Action = null) {
   def this(i: String, a: Action) = this(i, false, a, null)
   private var reflexiveMode = false
   def getValue(): String = infinitive
@@ -33,7 +33,6 @@ object Verb {
   }
 
   object Form extends Enumeration {
-    //type Form = Value
     val INDICATIVE,
     CONDITIONAL,
     SUBJUNCTIVE,
@@ -43,7 +42,6 @@ object Verb {
   }
 
   object Pronoun extends Enumeration {
-    //type Pronoun = Value
     val JE,
     TU,
     IL_ELLE_ON,

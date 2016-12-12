@@ -1,4 +1,4 @@
-name := "CalliopeFrAutoroute"
+name := "Calliope-Fr-Autoroute"
 
 version := "1.0"
 
