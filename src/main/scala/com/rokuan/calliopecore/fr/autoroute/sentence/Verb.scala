@@ -1,12 +1,14 @@
 package com.rokuan.calliopecore.fr.autoroute.sentence
 
+import com.rokuan.calliopecore.sentence.IValue
+
 /**
   * Created by Christophe on 09/12/2016.
   */
-case class Verb(infinitive: String, auxiliary: Boolean = false, initialAction: Action = null, reflexiveAction: Action = null) {
+case class Verb(infinitive: String, auxiliary: Boolean = false, initialAction: Action = null, reflexiveAction: Action = null) extends IValue {
   def this(i: String, a: Action) = this(i, false, a, null)
   private var reflexiveMode = false
-  def getValue(): String = infinitive
+  override def getValue(): String = infinitive
   def isAuxiliary(): Boolean = auxiliary
   def getAction(): Action = if(reflexiveMode) reflexiveAction else initialAction
   def valorizeReflexiveMode(): Unit = reflexiveMode = true

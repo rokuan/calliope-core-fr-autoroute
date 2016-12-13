@@ -1,12 +1,12 @@
 package com.rokuan.calliopecore.fr.autoroute.sentence
 
-import com.rokuan.calliopecore.sentence.{ICustomMode, ICustomObject, ICustomPerson, ICustomPlace}
+import com.rokuan.calliopecore.sentence._
 
 /**
   * Created by Christophe on 09/12/2016.
   */
-abstract class CustomData(name: String, code: String) {
-  def getValue(): String = name
+abstract class CustomData(name: String, code: String) extends ICustomData {
+  override def getValue(): String = name
   def getCode(): String = code
 }
 
