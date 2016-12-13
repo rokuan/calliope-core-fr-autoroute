@@ -6,7 +6,7 @@ import PronounMasks._
 /**
   * Created by Christophe on 09/12/2016.
   */
-class PronounObject(val value: String, val types: Set[WordType]) {
+class PronounObject(val value: String, val types: Set[WordType.Value]) {
   val typesMask = {
     val source = if(types.contains(WordType.SOURCE_PRONOUN)) SourceMask else 0
     val target = if(types.contains(WordType.TARGET_PRONOUN)) TargetMask else 0
@@ -14,7 +14,7 @@ class PronounObject(val value: String, val types: Set[WordType]) {
     source | target | reflexive
   }
 
-  def this(v: String, ts: WordType*) = this(v, ts.toSet)
+  def this(v: String, ts: WordType.Value*) = this(v, ts.toSet)
 
   def isSource() = (typesMask & SourceMask) != 0
   def isTarget() = (typesMask & TargetMask) != 0

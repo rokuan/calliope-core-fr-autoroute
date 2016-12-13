@@ -6,8 +6,8 @@ import com.rokuan.calliopecore.sentence.IAction.{ActionType, Form, Tense}
 /**
   * Created by Christophe on 09/12/2016.
   */
-case class VerbConjugation(name: String, verb: Verb, tense: Verb.ConjugationTense,
-                           form: IAction.Form, pronoun: Verb.Pronoun) extends IAction {
+case class VerbConjugation(name: String, verb: Verb, tense: Verb.ConjugationTense.Value,
+                           form: IAction.Form, pronoun: Verb.Pronoun.Value) extends IAction {
   def this(n: String, c: VerbConjugation, v: Verb) = this(n, v, c.tense, c.form, c.pronoun)
   override def getForm: Form = form
 

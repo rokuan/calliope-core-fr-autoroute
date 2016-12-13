@@ -7,7 +7,7 @@ import com.rokuan.calliopecore.sentence.IValue
 /**
   * Created by Christophe on 09/12/2016.
   */
-case class WordInfo(value: String, types: Set[WordType]) extends IValue {
-  def this(v: String, ts: WordType*) = this(v, ts.toSet)
+case class WordInfo(value: String, types: Set[WordType.Value]) extends IValue {
+  def this(v: String, ts: WordType.Value*) = this(v, ts.toSet)
   override def getValue: String = value
 }

@@ -16,12 +16,8 @@ case class Verb(infinitive: String, auxiliary: Boolean = false, initialAction: A
 }
 
 object Verb {
-  type ConjugationTense = ConjugationTense.Value
-  type Form = Form.Value
-  type Pronoun = Pronoun.Value
-
   object ConjugationTense extends Enumeration {
-    /*type ConjugationTense = Value*/
+    type ConjugationTense = Value
     val PRESENT,
     PAST,
     PERFECT, //PASSE_COMPOSE,
@@ -35,6 +31,7 @@ object Verb {
   }
 
   object Form extends Enumeration {
+    type Form = Form.Value
     val INDICATIVE,
     CONDITIONAL,
     SUBJUNCTIVE,
@@ -44,6 +41,7 @@ object Verb {
   }
 
   object Pronoun extends Enumeration {
+    type Pronoun = Pronoun.Value
     val JE,
     TU,
     IL_ELLE_ON,

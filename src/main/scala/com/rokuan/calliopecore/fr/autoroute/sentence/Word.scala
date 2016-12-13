@@ -28,11 +28,11 @@ class Word(val value: String,
            val transportInfo: TransportInfo = null,
            val cityInfo: CityInfo = null,
            val countryInfo: CountryInfo = null) extends IWord {
-  def this(value: String, ts: WordType*) = this(value, new WordInfo(value, ts.toSet))
-  val types: Set[WordType] = getWordTypes().toSet
+  def this(value: String, ts: WordType.Value*) = this(value, new WordInfo(value, ts.toSet))
+  val types: Set[WordType.Value] = getWordTypes().toSet
 
   private final def getWordTypes() = {
-    val additionalTypes = new collection.mutable.HashSet[WordType]()
+    val additionalTypes = new collection.mutable.HashSet[WordType.Value]()
     Option(wordInfo).foreach(i => additionalTypes ++= i.types)
     Option(timePreposition).foreach(_ => additionalTypes.add(WordType.TIME_PREPOSITION))
     Option(placePreposition).foreach(_ => additionalTypes.add(WordType.PLACE_PREPOSITION))
@@ -62,7 +62,7 @@ class Word(val value: String,
     additionalTypes
   }
 
-  def isOfType(t: WordType) = types.contains(t)
+  def isOfType(t: WordType.Value) = types.contains(t)
   def getTypes = types
 
   override def getValue: String = value
@@ -88,9 +88,8 @@ class Word(val value: String,
 }
 
 object Word {
-  type WordType = WordType.Value
-
   object WordType extends Enumeration {
+    type WordType = Value
     val PROPER_NAME,
     COMMON_NAME,
     ADVERB,
