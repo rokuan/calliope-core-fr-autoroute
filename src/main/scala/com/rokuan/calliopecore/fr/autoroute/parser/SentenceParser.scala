@@ -21,7 +21,7 @@ class SentenceParser(val db: WordStorage) extends AbstractParser {
   val numberRegex = "(\\d+)".r
 
   override def parseText(s: String): InterpretationObject = {
-    val words = lexSpeech(s)
+    val words: List[Word] = lexSpeech(s)
     parser(words)
   }
 
@@ -31,7 +31,7 @@ class SentenceParser(val db: WordStorage) extends AbstractParser {
       words match {
         case head :: tail =>
           val headWord = getWord(head)
-          (headWord, db.wordStartsWith(head)) match {
+          (headWord, db.wordStartsWith(head + " ")) match {
             case (w, false) if w != null => w :: getNextWord(tail)
             case (null, false) =>
               head match {
@@ -64,13 +64,13 @@ class SentenceParser(val db: WordStorage) extends AbstractParser {
               var shouldContinue = true
 
               while(shouldContinue && !toMatch.isEmpty){
-                buffer.append(toMatch.head)
+                buffer.append(" " + toMatch.head)
                 val newQuery = buffer.toString
                 Option(getWord(newQuery)).foreach { result =>
                   currentWord = result
                   realEnd = toMatch
                 }
-                shouldContinue = db.wordStartsWith(newQuery)
+                shouldContinue = db.wordStartsWith(newQuery + " ")
                 toMatch = toMatch.tail
               }
               currentWord :: getNextWord(realEnd)
@@ -87,7 +87,7 @@ class SentenceParser(val db: WordStorage) extends AbstractParser {
       case fullTimeRegex(_, _) | hoursOnlyRegex(_)  => new Word(s, TIME)
       case realNumberRegex(_) => new Word(s, REAL)
       case numberRegex(_) => new Word(s, NUMBER)
-      case words if words.split(" ").exists(_(0).isUpper) => getProperName(s) // TODO: what happens for names such as "SMS"
+      case proper if proper(0).isUpper => getProperName(s) // TODO: what happens for names such as "SMS"
       case _ => getCommonName(s)
     }
   }
@@ -104,9 +104,10 @@ class SentenceParser(val db: WordStorage) extends AbstractParser {
   }
 
   protected def getCommonName(s: String): Word = {
-    new Word(s,
+    val result = new Word(s,
       wordInfo = db.findWordInfo(s),
       nameInfo = db.findNameInfo(s),
+      verbInfo = db.findConjugation(s),
       adjectiveInfo = db.findAdjectiveInfo(s),
       languageInfo = db.findLanguageInfo(s),
       colorInfo = db.findColorInfo(s),
@@ -122,5 +123,11 @@ class SentenceParser(val db: WordStorage) extends AbstractParser {
       timePreposition = db.findTimePreposition(s),
       wayPreposition = db.findWayPreposition(s),
       purposePreposition = db.findPurposePreposition(s))
+
+    if(result.getTypes.isEmpty){
+      null
+    } else {
+      result
+    }
   }
 }
