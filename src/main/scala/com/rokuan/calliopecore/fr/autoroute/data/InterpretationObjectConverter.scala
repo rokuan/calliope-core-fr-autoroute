@@ -5,7 +5,7 @@ import com.rokuan.calliopecore.sentence.ActionObject
 import com.rokuan.calliopecore.sentence.structure.{AffirmationObject, InterpretationObject, OrderObject, QuestionObject}
 import com.rokuan.calliopecore.sentence.structure.QuestionObject.QuestionType
 import com.rokuan.calliopecore.sentence.structure.content.{INominalObject, IPlaceObject, ITimeObject, IWayObject}
-import com.rokuan.calliopecore.sentence.structure.data.nominal.{AbstractTarget, NominalGroup, PronounSubject}
+import com.rokuan.calliopecore.sentence.structure.data.nominal.{AbstractTarget, PronounSubject}
 
 /**
   * Created by Christophe on 01/12/2016.
@@ -24,7 +24,7 @@ object InterpretationObjectConverter {
     adverbials.when.foreach(o.when = _)
     adverbials.how.foreach(o.how = _)
   }
-  private def createQuestionObject(t: QuestionType, verb: ActionInfo, directObject: Option[NominalGroup], adverbials: AdverbialsInfo) = {
+  private def createQuestionObject(t: QuestionType, verb: ActionInfo, directObject: Option[INominalObject], adverbials: AdverbialsInfo) = {
     val question = new QuestionObject {
       questionType = t
       action = verb.action
@@ -73,23 +73,26 @@ object InterpretationObjectConverter {
   }
 
   val HowQuestion = (HowTransformer ~ VerbConverter.InfinitiveVerbRule ~ opt(NominalGroupConverter.DirectObjectRule) ~ AdverbialListTransformer){
-    case List(t: QuestionType, verb: ActionInfo, directObject: Option[NominalGroup], adverbials: AdverbialsInfo) =>
+    case List(t: QuestionType, verb: ActionInfo, directObject: Option[INominalObject], adverbials: AdverbialsInfo) =>
       createQuestionObject(t, verb, directObject, adverbials)
   }
   val HowManyQuestion = (HowManyTransformer ~ NominalGroupConverter.DirectObjectRule ~ VerbConverter.QuestionVerb ~ AdverbialListTransformer) {
-    case List(t: QuestionType, directObject: NominalGroup, verb: ActionInfo, adverbials: AdverbialsInfo) =>
+    case List(t: QuestionType, directObject: INominalObject, verb: ActionInfo, adverbials: AdverbialsInfo) =>
       createQuestionObject(t, verb, Some(directObject), adverbials)
   }
   val WhatQuestion = (WhatTransformer ~ NominalGroupConverter.SimpleObjectOnlyRule ~ VerbConverter.QuestionVerb ~ AdverbialListTransformer) {
-    case List(t: QuestionType, directObject: NominalGroup, verb: ActionInfo, adverbials: AdverbialsInfo) =>
+    case List(t: QuestionType, directObject: INominalObject, verb: ActionInfo, adverbials: AdverbialsInfo) =>
       createQuestionObject(t, verb, Some(directObject), adverbials)
+  } | (WhatTransformer ~ VerbConverter.AffirmativeConjugatedVerbTranformer(verb("être")) ~ NominalGroupConverter.CommonObjectRule ~ AdverbialListTransformer) {
+    case List(t: QuestionType, v: ActionObject, directObject: INominalObject, adverbials: AdverbialsInfo) =>
+      createQuestionObject(t, ActionInfo(None, None, v), Some(directObject), adverbials)
   }
   val WhenQuestion = (WhenTransformer ~ VerbConverter.IndicativeQuestionVerb ~ NominalGroupConverter.DirectObjectRule ~ AdverbialListTransformer) {
-    case List(t: QuestionType, verb: ActionInfo, directObject: NominalGroup, adverbials: AdverbialsInfo) =>
+    case List(t: QuestionType, verb: ActionInfo, directObject: INominalObject, adverbials: AdverbialsInfo) =>
       createQuestionObject(t, verb, Some(directObject), adverbials)
   }
   val WhereQuestion = (WhereTransformer ~ VerbConverter.IndicativeQuestionVerb ~ NominalGroupConverter.DirectObjectRule ~ AdverbialListTransformer) {
-    case List(t: QuestionType, verb: ActionInfo, directObject: NominalGroup, adverbials: AdverbialsInfo) =>
+    case List(t: QuestionType, verb: ActionInfo, directObject: INominalObject, adverbials: AdverbialsInfo) =>
       createQuestionObject(t, verb, Some(directObject), adverbials)
   }
   val WhoQuestion = (WhoTransformer ~ verb("être") ~ NominalGroupConverter.SubjectRule ~ AdverbialListTransformer) {
@@ -116,7 +119,7 @@ object InterpretationObjectConverter {
 
   val AssertionRule = (NominalGroupConverter.SubjectRule ~ VerbConverter.AffirmativeConjugatedVerb ~
     opt(NominalGroupConverter.DirectObjectRule) ~ AdverbialListTransformer) {
-    case List(s: INominalObject, verb: ActionInfo, directObject: Option[NominalGroup], adverbials: AdverbialsInfo) =>
+    case List(s: INominalObject, verb: ActionInfo, directObject: Option[INominalObject], adverbials: AdverbialsInfo) =>
       val sentence = new AffirmationObject {
         subject = s
         action = verb.action

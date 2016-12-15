@@ -116,5 +116,5 @@ object NominalGroupConverter {
 
   val SubjectRule = AdditionalObjectTransformer | PersonObjectRule | Quantity | PhoneNumber | PlaceConverter.CityRule | PlaceConverter.CountryRule |
     PronounTransformer | DateConverter.FixedDate | Color | Language | CommonObjectRule
-  val DirectObjectRule = AdditionalObjectTransformer | Quantity | CommonObjectRule | AdditionalPersonTransformer
+  val DirectObjectRule = AdditionalObjectTransformer | Quantity | CommonObjectRule | PersonObjectRule
 }

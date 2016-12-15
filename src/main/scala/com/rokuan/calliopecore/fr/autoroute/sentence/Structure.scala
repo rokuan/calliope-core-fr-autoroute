@@ -61,6 +61,16 @@ object Pronoun {
     case "vous" => PronounSource.YOU_
     case _ => PronounSource.UNDEFINED
   }
+
+  def parsePossessivePronoun(s: String) = s match {
+    case "mon" | "ma" | "mes" => PronounSource.I
+    case "ton" | "ta" | "tes" => PronounSource.YOU
+    case "son" | "sa" | "ses" => PronounSource.HE_SHE
+    case "notre" | "nos" => PronounSource.WE
+    case "votre" | "vos" => PronounSource.YOU_
+    case "leur" | "leurs" => PronounSource.THEY
+    case _ => PronounSource.UNDEFINED
+  }
 }
 
 class Pronoun(val value: String, val source: PronounSource) extends IPronoun {
@@ -72,3 +82,4 @@ case class SubjectPronoun(v: String) extends Pronoun(v, Pronoun.parseSubjectPron
 case class DirectPronoun(v: String) extends Pronoun(v, Pronoun.parseDirectPronoun(v))
 case class TargetPronoun(v: String) extends Pronoun(v, Pronoun.parseTargetPronoun(v))
 case class ReflexivePronoun(v: String) extends Pronoun(v, Pronoun.parseReflexivePronoun(v))
+case class PossessivePronoun(v: String) extends Pronoun(v, Pronoun.parsePossessivePronoun(v))

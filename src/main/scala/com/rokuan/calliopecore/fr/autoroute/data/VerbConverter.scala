@@ -1,5 +1,6 @@
 package com.rokuan.calliopecore.fr.autoroute.data
 
+import com.rokuan.autoroute.rules.TerminalState
 import com.rokuan.calliopecore.fr.autoroute.sentence._
 import com.rokuan.calliopecore.sentence.ActionObject
 import com.rokuan.calliopecore.sentence.IAction.{ActionType, Form, Tense}
@@ -62,7 +63,13 @@ object VerbConverter {
       }.getOrElse {
         None
       }
-    ActionInfo(None, target, action)
+      ActionInfo(None, target, action)
+  }
+
+  val AffirmativeConjugatedVerbTranformer = { r: TerminalState[Word] =>
+    (opt(word(AUXILIARY)) ~ r) {
+      case List(_, v: Word) => new ActionObject(Tense.PAST, v.getVerbInfo)
+    } | r { v => new ActionObject(v.getVerbInfo.getTense, v.getVerbInfo) }
   }
 
   val PastQuestionVerb = (opt(TargetPronounTransformer) ~ word(AUXILIARY) ~

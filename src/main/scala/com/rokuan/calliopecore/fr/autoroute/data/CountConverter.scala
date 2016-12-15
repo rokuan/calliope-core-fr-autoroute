@@ -1,6 +1,6 @@
 package com.rokuan.calliopecore.fr.autoroute.data
 
-import com.rokuan.calliopecore.fr.autoroute.sentence.Word
+import com.rokuan.calliopecore.fr.autoroute.sentence.{PossessivePronoun, Pronoun, Word}
 import com.rokuan.calliopecore.fr.autoroute.sentence.Word.WordType
 import com.rokuan.calliopecore.sentence.structure.data.count.CountObject.ArticleType
 import com.rokuan.calliopecore.sentence.structure.data.count._
@@ -62,6 +62,7 @@ object CountConverter {
         } else {
           new AllItemsObject
         }
+      result.possessiveTarget = PossessivePronoun(article.getValue)
       result.definition = d
       result
     }

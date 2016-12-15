@@ -112,4 +112,21 @@ class SentenceConversionSpec extends FlatSpec with Matchers {
     val obj = parser(words)
     obj.getRequestType shouldBe RequestType.ORDER
   }
+
+  "4" should "5" in {
+    val toName = new Verb("appeler", false, new Action(ActionType.CALL), new Action(ActionType.BE_NAMED))
+    val name = new VerbConjugation("appelle", toName, ConjugationTense.PRESENT, Form.INDICATIVE, Verb.Pronoun.JE)
+
+    val words = List(
+      new Word("je", PERSONAL_PRONOUN),
+      new Word("m", REFLEXIVE_PRONOUN),
+      new Word("appelle", verbInfo = name),
+      new Word("Christophe",
+        firstNameInfo = new FirstNameInfo("Christophe"))
+      //new Word("Christophe", PROPER_NAME)
+    )
+
+    val obj = parser(words)
+    obj.getRequestType shouldBe RequestType.AFFIRMATION
+  }
 }
