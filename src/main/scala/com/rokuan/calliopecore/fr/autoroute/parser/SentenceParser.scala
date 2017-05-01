@@ -7,18 +7,13 @@ import com.rokuan.calliopecore.fr.autoroute.sentence.{Word, WordInfo}
 import com.rokuan.calliopecore.fr.autoroute.sentence.Word.WordType._
 import com.rokuan.calliopecore.parser.AbstractParser
 import com.rokuan.calliopecore.sentence.structure.InterpretationObject
+import SentenceParser._
 
 /**
   * Created by Christophe on 05/12/2016.
   */
 class SentenceParser(val db: WordStorage) extends AbstractParser {
   val parser = new Route(InterpretationObjectConverter.InterpretationObjectRule)
-
-  val fullTimeRegex = "(\\d+)h(\\d+)".r
-  val hoursOnlyRegex = "(\\d+)h".r
-  val positionRegex = "(\\d+)e".r
-  val realNumberRegex = "(\\d+\\.\\d+)".r
-  val numberRegex = "(\\d+)".r
 
   override def parseText(s: String): InterpretationObject = {
     val words: List[Word] = lexSpeech(s)
@@ -83,10 +78,10 @@ class SentenceParser(val db: WordStorage) extends AbstractParser {
 
   protected def getWord(s: String): Word = {
     s match {
-      case positionRegex(_) => new Word(s, NUMERICAL_POSITION)
-      case fullTimeRegex(_, _) | hoursOnlyRegex(_)  => new Word(s, TIME)
-      case realNumberRegex(_) => new Word(s, REAL)
-      case numberRegex(_) => new Word(s, NUMBER)
+      case PositionRegex(_) => new Word(s, NUMERICAL_POSITION)
+      case FullTimeRegex(_, _) | HoursOnlyRegex(_)  => new Word(s, TIME)
+      case RealNumberRegex(_) => new Word(s, REAL)
+      case NumberRegex(_) => new Word(s, NUMBER)
       case proper if proper(0).isUpper => getProperName(s) // TODO: what happens for names such as "SMS"
       case _ => getCommonName(s)
     }
@@ -130,4 +125,12 @@ class SentenceParser(val db: WordStorage) extends AbstractParser {
       result
     }
   }
+}
+
+object SentenceParser {
+  val FullTimeRegex = "(\\d+)h(\\d+)".r
+  val HoursOnlyRegex = "(\\d+)h".r
+  val PositionRegex = "(\\d+)e".r
+  val RealNumberRegex = "(\\d+\\.\\d+)".r
+  val NumberRegex = "(\\d+)".r
 }

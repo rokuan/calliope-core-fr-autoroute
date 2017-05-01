@@ -67,7 +67,7 @@ object VerbConverter {
   }
 
   val AffirmativeConjugatedVerbTranformer = { r: TerminalState[Word] =>
-    (opt(word(AUXILIARY)) ~ r) {
+    (word(AUXILIARY) ~ r) {
       case List(_, v: Word) => new ActionObject(Tense.PAST, v.getVerbInfo)
     } | r { v => new ActionObject(v.getVerbInfo.getTense, v.getVerbInfo) }
   }

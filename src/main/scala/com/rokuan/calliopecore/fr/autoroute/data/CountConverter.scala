@@ -22,7 +22,7 @@ object CountConverter {
   private val TenPowerMap = Array("dix", "cent", "mille", "_", "_", "million", "_",
     "_", "milliard")
 
-  def isSingular(article: String) = article.split("-").exists(w => w.last == 's' || w.last == 'x')
+  def isSingular(article: String) = !article.split("-").exists(w => w.last == 's' || w.last == 'x')
 
   def parsePosition(position: String) = position match {
     case "premier" | "première" | "1er" | "1ère" | "1ere" => 1
@@ -34,7 +34,7 @@ object CountConverter {
         } else {
           count
         }
-      parseCount(count)
+      parseCount(trimmedCount)
     case _ => 0 // TODO
   }
 
