@@ -36,4 +36,6 @@ case class VerbConjugation(name: String, verb: Verb, tense: Verb.ConjugationTens
   override def getBoundField: String = verb.getAction().field
 
   def getVerb(): Verb = verb
+
+  override def isTargetAction: Boolean = verb.getAction().isTargetAction()
 }
