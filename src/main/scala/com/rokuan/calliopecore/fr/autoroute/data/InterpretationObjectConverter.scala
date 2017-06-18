@@ -165,6 +165,10 @@ object InterpretationObjectConverter {
       }
       applyAdverbials(order, adverbials)
       order
+  } | (VerbConverter.ImperativeVerbTransformer) { verb: ActionObject =>
+    new OrderObject {
+      action = verb
+    }
   }
 
   val QuestionRule = HowQuestion | HowManyQuestion |
