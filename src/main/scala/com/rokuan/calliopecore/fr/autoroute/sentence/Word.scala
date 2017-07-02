@@ -144,6 +144,8 @@ object Word {
     STREET_TYPE, //rue/avenue/boulevard/...
     PERSON_TYPE, // voisin/oncle/m�decin
 
+    TEXT, // "être ou ne pas être"
+
     CITY,
     COUNTRY,
     FIRSTNAME,

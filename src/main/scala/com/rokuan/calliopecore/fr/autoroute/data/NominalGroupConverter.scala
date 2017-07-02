@@ -40,9 +40,7 @@ object NominalGroupConverter {
         case n if n < 100 => "%2d".format(n)
         case n => n.toString
       }.mkString
-      new PhoneNumberObject {
-        number = phoneNumber
-      }
+      new PhoneNumberObject(phoneNumber)
   }
   val Quantity = (DoubleTransformer ~ UnitTransformer) {
     case List(quantity: Int, unit: UnitType) =>
@@ -60,7 +58,7 @@ object NominalGroupConverter {
       val names = firstNames.map(_.getValue) ++ lastNames.getOrElse(List()).map(_.getValue)
       new PersonObject(names.mkString(" "))
   }
-  val AdditionalPersonTransformer = word(CUSTOM_PERSON) { w => new AdditionalPerson { person = w.getCustomPerson } }
+  val AdditionalPersonTransformer = word(CUSTOM_PERSON) { w => new AdditionalPerson(w.getCustomPerson) }
   val PersonObjectRule = AdditionalPersonTransformer | PersonTransformer
   val Language = (word(DEFINITE_ARTICLE) ~ word(LANGUAGE)) {
     case List(_, l: Word) =>
@@ -114,7 +112,10 @@ object NominalGroupConverter {
       o
   }
 
+  val AdjectiveRule = word(ADJECTIVE) { w => new AdjectiveObject(w.getAdjectiveInfo) }
+  val TextRule = word(TEXT) { new TextObject(_) }
+
   val SubjectRule = AdditionalObjectTransformer | PersonObjectRule | Quantity | PhoneNumber | PlaceConverter.CityRule | PlaceConverter.CountryRule |
     PronounTransformer | DateConverter.FixedDate | Color | Language | CommonObjectRule
-  val DirectObjectRule = AdditionalObjectTransformer | Quantity | CommonObjectRule | PersonObjectRule
+  val DirectObjectRule = AdditionalObjectTransformer | Quantity | CommonObjectRule | PersonObjectRule | AdjectiveRule
 }

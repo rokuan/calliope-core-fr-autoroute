@@ -8,6 +8,9 @@ import com.rokuan.calliopecore.fr.autoroute.sentence.Word.WordType._
 import com.rokuan.calliopecore.parser.AbstractParser
 import com.rokuan.calliopecore.sentence.structure.InterpretationObject
 import SentenceParser._
+import Producer._
+
+import scala.collection.mutable.ListBuffer
 
 /**
   * Created by Christophe on 05/12/2016.
@@ -21,6 +24,20 @@ class SentenceParser(val db: WordStorage) extends AbstractParser {
   }
 
   protected def lexSpeech(text: String): Producer[Word] = {
+    val parts = text.split("\"")
+    val even = if (text.startsWith("\"")) { 0 } else { 1 }
+    val buffer = new ListBuffer[Word]
+    parts.zipWithIndex.foreach { p =>
+      if (p._2 % 2 == even) {
+        buffer += new Word(p._1, TEXT)
+      } else {
+        buffer ++= lexWords(p._1)
+      }
+    }
+    buffer.toList
+  }
+
+  protected def lexWords(text: String): Producer[Word] = {
     val words = text.split(" ").toList
     def getNextWord(words: List[String]): Producer[Word] = {
       words match {
